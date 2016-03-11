@@ -1,11 +1,13 @@
 package net.jokubasdargis.awesome.processor
 
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
-internal class LinkFinder(internal val elements: List<Element> = emptyList(),
-                          internal val root: Link) {
+internal class LinkFinder(internal val root: Link) {
 
-    fun find() : LinkList {
+    fun find(document: Document) : LinkList {
+        val elements: List<Element> = document
+                .getElementsByAttribute(Html.Attr.HREF.value) ?: emptyList<Element>()
         val pairs = elements
                 .map { Pair(it, Link.from(Html.href(it), root)) }
                 .map {

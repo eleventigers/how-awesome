@@ -1,7 +1,5 @@
 package net.jokubasdargis.awesome.processor
 
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 import org.junit.Test
 import com.google.common.truth.Truth.assertThat
 import org.junit.runner.RunWith
@@ -29,17 +27,11 @@ class LinkFinderTest(val documentResourcePath: String, val documentRootUrl: Stri
     }
 
     @Test fun findLinks() {
-        val linkFinder = createFinder(documentResourcePath, documentRootUrl)
-        val linkList = linkFinder.find()
+        val linkFinder = LinkFinder(Link.from(documentRootUrl))
+        val linkList = linkFinder.find(readmeDocument(documentResourcePath)!!)
 
         linkList.links().forEach(::println)
 
         assertThat(linkList.links().size).isEqualTo(numberOfLinks)
-    }
-
-    private fun createFinder(documentResourcePath: String, documentRootUrl: String) : LinkFinder {
-        val readmeDocument: Document? = readmeDocument(documentResourcePath)
-        val elements: List<Element> = readmeDocument?.select("a[href]") ?: emptyList<Element>()
-        return LinkFinder(elements, Link.from(documentRootUrl))
     }
 }
