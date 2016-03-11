@@ -1,0 +1,33 @@
+subprojects {
+    buildscript {
+        repositories {
+            mavenCentral()
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    group = GROUP
+    version = VERSION_NAME
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.10'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
+}
+
+ext {
+    kotlinPlugin = 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.0'
+    kotlinStdlib = 'org.jetbrains.kotlin:kotlin-stdlib:1.0.0'
+
+    jsoup = 'org.jsoup:jsoup:1.8.3'
+
+    junit = 'junit:junit:4.12'
+    truth = 'com.google.truth:truth:0.27'
+}

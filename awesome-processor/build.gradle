@@ -1,0 +1,24 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath rootProject.ext.kotlinPlugin
+    }
+}
+
+apply plugin: 'kotlin'
+
+dependencies {
+    compile rootProject.ext.kotlinStdlib
+    compile rootProject.ext.jsoup
+
+    testCompile rootProject.ext.junit
+    testCompile rootProject.ext.truth
+}
+
+test.testClassesDir = project.tasks.compileTestKotlin.destinationDir
+
+kapt {
+    generateStubs = true
+}
