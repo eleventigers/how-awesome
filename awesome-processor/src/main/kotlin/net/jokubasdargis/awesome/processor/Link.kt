@@ -13,9 +13,13 @@ data class Link(val uri: URI?, val parent: Link? = null) {
         }
     }
 
+    fun absolute() : URI? {
+        return liftParent(uri, parent)
+    }
+
     companion object {
         fun from(link : String, parent: Link? = null) : Link {
-            return Link(liftParent(uriOrNull(link), parent), parent)
+            return Link(uriOrNull(link), parent)
         }
 
         private fun uriOrNull(string: String): URI? {

@@ -2,8 +2,8 @@ package net.jokubasdargis.awesome.processor
 
 internal class Functions {
     companion object {
-        val OR: (Boolean, Boolean) -> Boolean = { a, b -> a || b }
-        val AND: (Boolean, Boolean) -> Boolean = { a, b -> a && b }
+        private val OR: (Boolean, Boolean) -> Boolean = { a, b -> a || b }
+        private val AND: (Boolean, Boolean) -> Boolean = { a, b -> a && b }
 
         fun <T> or(vararg f: (T) -> Boolean): (T) -> Boolean = { reduce(false, OR, *f) (it) }
 
