@@ -66,4 +66,62 @@ class DefaultLinkSummarizerTest : BaseDocumentTest() {
         assertThat(summary.title).isEqualTo("OkHttp")
         assertThat(summary.description).isEqualTo("HTTP+SPDY client")
     }
+
+    @Test
+    fun summarizeSwift() {
+        val link = Link.from("https://github.com/matteocrippa/awesome-swift")
+        val summarizer = DefaultLinkSummarizer.create()
+        val summary = summarizer.summarize(link, readmeDocument("awesome.html")!!)
+
+        assertThat(summary.title).isEqualTo("Swift")
+        assertThat(summary.description).isNull()
+    }
+
+    @Test
+    fun noopSummaryStrategy() {
+        val link = Link.from("https://github.com/JavaBy/awesome-kotlin")
+        val summarizer = DefaultLinkSummarizer.create(LinkSummaryStrategies.noop())
+        val summary = summarizer.summarize(link, readmeDocument("awesome.html")!!)
+
+        assertThat(summary.title).isNull()
+        assertThat(summary.description).isNull()
+    }
+
+    @Test
+    fun summarizePlentyAwesome() {
+        val document = readmeDocument("awesome.html");
+        val linkFinder = LinkFinder(Link.from("https://github.com/sindresorhus/awesome"))
+        val linkList = linkFinder.find(document!!)
+        val summarizer = DefaultLinkSummarizer.create()
+
+        linkList.links().forEach {
+            val summary = summarizer.summarize(it, document)
+            assertThat(summary.link).isEqualTo(it)
+            if (summary.title != null) {
+                assertThat(summary.title).isNotEmpty()
+            }
+            if (summary.description != null) {
+                assertThat(summary.description).isNotEmpty()
+            }
+        }
+    }
+
+    @Test
+    fun summarizePlentyKotlin() {
+        val document = readmeDocument("awesome-kotlin.html");
+        val linkFinder = LinkFinder(Link.from("https://github.com/JavaBy/awesome-kotlin"))
+        val linkList = linkFinder.find(document!!)
+        val summarizer = DefaultLinkSummarizer.create()
+
+        linkList.links().forEach {
+            val summary = summarizer.summarize(it, document)
+            assertThat(summary.link).isEqualTo(it)
+            if (summary.title != null) {
+                assertThat(summary.title).isNotEmpty()
+            }
+            if (summary.description != null) {
+                assertThat(summary.description).isNotEmpty()
+            }
+        }
+    }
 }

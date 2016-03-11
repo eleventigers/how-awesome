@@ -25,7 +25,8 @@ internal class Html {
         }
 
         companion object {
-            val HEADINGS = setOf(H1, H2, H3, H4, H5, H6)
+            private val HEADINGS = setOf(H1, H2, H3, H4, H5, H6)
+            private val LISTS = setOf(UL, LI)
 
             fun from(value: String?) : Tag? {
                 values().forEach {
@@ -38,6 +39,10 @@ internal class Html {
 
             fun headings() : Set<Tag> {
                 return HEADINGS
+            }
+
+            fun lists() : Set<Tag> {
+                return LISTS
             }
         }
     }
