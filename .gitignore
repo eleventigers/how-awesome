@@ -5,6 +5,7 @@ annotations
 
 # Gradle
 .gradle
+.gradletasknamecache
 gradlew.bat
 build
 local.properties

@@ -32,7 +32,7 @@ class LinkList private constructor(pairs: List<Pair<Link, List<Link>>>) {
         }
 
         override fun toString(): String {
-            return "${from.uri} -> ${to.uri}"
+            return "${from.toUri()} -> ${to.toUri()}"
         }
 
         override fun equals(other: Any?): Boolean{

@@ -1,7 +1,7 @@
 package net.jokubasdargis.awesome.processor
 
-import org.junit.Test
 import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -13,12 +13,12 @@ class LinkFinderTest(val documentResourcePath: String, val documentRootUrl: Stri
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun data() : Collection<Array<Any>> {
+        fun data(): Collection<Array<Any>> {
             return listOf(
-                    arrayOf("awesome.html","https://github.com/sindresorhus/awesome", 318),
+                    arrayOf("awesome.html", "https://github.com/sindresorhus/awesome", 318),
                     arrayOf("awesome-kotlin.html", "https://github.com/JavaBy/awesome-kotlin", 151),
                     arrayOf("awesome-java.html", "https://github.com/akullpp/awesome-java", 457),
-                    arrayOf("awesome-dart.html", "https://github.com/yissachar/awesome-dart", 87),
+                    arrayOf("awesome-dart.html", "https://github.com/yissachar/awesome-dart", 86),
                     arrayOf("awesome-osx-command-line.html",
                             "https://github.com/herrbischoff/awesome-osx-command-line", 299)
 
@@ -27,10 +27,12 @@ class LinkFinderTest(val documentResourcePath: String, val documentRootUrl: Stri
     }
 
     @Test fun findLinks() {
-        val linkFinder = LinkFinder(Link.from(documentRootUrl))
+        val root = Link.from(documentRootUrl)
+        val linkFinder = LinkFinder(root)
         val linkList = linkFinder.find(readmeDocument(documentResourcePath)!!)
 
-        linkList.links().forEach(::println)
+        linkList.links()
+                .forEach(::println)
 
         assertThat(linkList.links().size).isEqualTo(numberOfLinks)
     }

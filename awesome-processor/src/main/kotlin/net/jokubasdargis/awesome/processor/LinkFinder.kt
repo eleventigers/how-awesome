@@ -20,7 +20,7 @@ internal class LinkFinder(internal val root: Link) {
 
                     Pair(it.second, allLinks)
                 }
-                .groupBy { p -> p.first.uri }
+                .groupBy { p -> p.first.toUri() }
                 .map { g ->
                     // prefer link with greater relations
                     g.value.fold(g.value.first(), { a, p ->

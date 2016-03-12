@@ -12,6 +12,7 @@ apply plugin: 'kotlin'
 dependencies {
     compile rootProject.ext.kotlinStdlib
     compile rootProject.ext.jsoup
+    compile rootProject.ext.galimatias
 
     testCompile rootProject.ext.junit
     testCompile rootProject.ext.truth

@@ -8,7 +8,9 @@ internal class DefaultLinkSummarizer private constructor(
 
     override fun summarize(link: Link, document: Document) : LinkSummary {
         val summaries = document
-                .getElementsByAttributeValueContaining(Html.Attr.HREF.value, link.uri.toString())
+                .getElementsByAttributeValueContaining(
+                        Html.Attr.HREF.value,
+                        link.raw())
                 .map(strategy(link))
 
         return summaries.first()

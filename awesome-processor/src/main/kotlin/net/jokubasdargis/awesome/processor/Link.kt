@@ -1,37 +1,36 @@
 package net.jokubasdargis.awesome.processor
 
+import io.mola.galimatias.URL
 import java.net.URI
-import java.net.URISyntaxException
 
-data class Link(val uri: URI?, val parent: Link? = null) {
+data class Link private constructor(
+        private val url: URL, private val parent: Link? = null, private val raw: String) {
 
-    fun isOf(host: Host): Boolean {
-        return if (uri == null || uri.host == null) {
-            host.apply(parent?.uri?.host)
-        } else {
-            host.apply(uri.host)
-        }
+    fun toUri(): URI {
+        return url.toJavaURI()
     }
 
-    fun absolute() : URI? {
-        return liftParent(uri, parent)
+    fun toUrl(): java.net.URL {
+        return url.toJavaURL()
+    }
+
+    fun raw(): String {
+        return raw
+    }
+
+    override fun toString(): String{
+        return "Link(url=$url, parent=$parent)"
     }
 
     companion object {
-        fun from(link : String, parent: Link? = null) : Link {
-            return Link(uriOrNull(link), parent)
+        fun from(string: String, parent: Link? = null): Link {
+            return Link(URL.fromJavaURI(resolve(URI(string), parent)), parent, string)
         }
 
-        private fun uriOrNull(string: String): URI? {
-            return try {
-                URI(string).normalize()
-            } catch (e: URISyntaxException) {
-                null
+        private fun resolve(uri: URI, parent: Link?): URI {
+            return if (uri.host != null) uri else {
+                parent?.toUri()?.resolve(uri.toString()) ?: uri
             }
-        }
-
-        private fun liftParent(uri: URI?, parent: Link?) : URI? {
-            return if (uri?.host != null) uri else { parent?.uri?.resolve(uri)?: uri }
         }
     }
 }
