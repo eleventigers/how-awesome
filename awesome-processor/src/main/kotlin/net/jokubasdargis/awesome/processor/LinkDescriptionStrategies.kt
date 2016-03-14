@@ -4,24 +4,38 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
 import java.text.Normalizer
 
-internal class LinkSummaryStrategies {
+internal class LinkDescriptionStrategies {
     companion object {
-        private val NOOP_SUMMARY_STRATEGY : (Link) -> (Element) -> LinkSummary = { link ->
+        private val NONE_STRATEGY: (Link) -> (Element) -> LinkDescription = { link ->
             {
-                LinkSummary(link)
+                LinkDescription.None()
             }
         }
 
-        private val BASIC_SUMMARY_STRATEGY : (Link) -> (Element) -> LinkSummary = { link ->
+        private val TITLE_STRATEGY: (Link) -> (Element) -> LinkDescription = { link ->
             {
                 var title = it.text()
                 if (title.isNullOrBlank()) {
                     title = findTextInSiblings(it)
                 }
 
-                val desc = findTextInSiblings(it)
+                title = clean(title)
+                if (title != null) {
+                    LinkDescription.Title(title)
+                } else {
+                    LinkDescription.None()
+                }
+            }
+        }
 
-                LinkSummary(link, clean(title), clean(desc))
+        private val SUMMARY_STRATEGY: (Link) -> (Element) -> LinkDescription = { link ->
+            {
+                var summary = clean(findTextInSiblings(it))
+                if (summary != null) {
+                    LinkDescription.Summary(summary)
+                } else {
+                    LinkDescription.None()
+                }
             }
         }
 
@@ -55,12 +69,17 @@ internal class LinkSummaryStrategies {
             }
         }
 
-        fun default() : (Link) -> (Element) -> LinkSummary {
-            return BASIC_SUMMARY_STRATEGY
+        fun title() : (Link) -> (Element) -> LinkDescription {
+            return TITLE_STRATEGY
         }
 
-        fun noop() : (Link) -> (Element) -> LinkSummary {
-            return NOOP_SUMMARY_STRATEGY
+
+        fun summary() : (Link) -> (Element) -> LinkDescription {
+            return SUMMARY_STRATEGY
+        }
+
+        fun none() : (Link) -> (Element) -> LinkDescription {
+            return NONE_STRATEGY
         }
     }
 }

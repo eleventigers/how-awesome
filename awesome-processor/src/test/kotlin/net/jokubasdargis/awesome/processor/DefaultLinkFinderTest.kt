@@ -18,7 +18,7 @@ class DefaultLinkFinderTest(val documentResourcePath: String, val documentRootUr
                     arrayOf("awesome.html", "https://github.com/sindresorhus/awesome", 318),
                     arrayOf("awesome-kotlin.html", "https://github.com/JavaBy/awesome-kotlin", 151),
                     arrayOf("awesome-java.html", "https://github.com/akullpp/awesome-java", 457),
-                    arrayOf("awesome-dart.html", "https://github.com/yissachar/awesome-dart", 86),
+                    arrayOf("awesome-dart.html", "https://github.com/yissachar/awesome-dart", 87),
                     arrayOf("awesome-osx-command-line.html",
                             "https://github.com/herrbischoff/awesome-osx-command-line", 299)
 

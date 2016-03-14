@@ -20,7 +20,7 @@ internal class DefaultLinkFinder private constructor(private val document: Docum
 
                     Pair(it.second, allLinks)
                 }
-                .groupBy { p -> p.first.toUri() }
+                .groupBy { p -> p.first.raw() }
                 .map { g ->
                     // prefer link with greater relations
                     g.value.fold(g.value.first(), { a, p ->

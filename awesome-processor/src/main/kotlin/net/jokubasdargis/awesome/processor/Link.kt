@@ -3,50 +3,118 @@ package net.jokubasdargis.awesome.processor
 import io.mola.galimatias.URL
 import java.net.URI
 
-data class Link private constructor(
-        private val url: URL, private val parent: Link? = null, private val raw: String) {
-
-    fun toUri(): URI {
-        return url.toJavaURI()
-    }
-
-    fun toUrl(): java.net.URL {
-        return url.toJavaURL()
-    }
+sealed class Link(private val raw: String) {
 
     fun raw(): String {
         return raw
     }
 
-    fun ofHost(host: Host): Boolean {
-        return host.apply(url.host().toString())
+    class Identified internal constructor(
+            private val url: URL, val parent: Link? = null, raw: String) : Link(raw) {
+
+        fun toUri(): URI {
+            return url.toJavaURI()
+        }
+
+        fun toUrl(): java.net.URL {
+            return url.toJavaURL()
+        }
+
+        fun ofHost(host: Host): Boolean {
+            return host.apply(url.host()?.toString())
+        }
+
+        fun equalHierarchy(other: Link): Boolean {
+            when (other) {
+                is Identified -> {
+                    if (!url.isHierarchical || !other.url.isHierarchical) {
+                        return false
+                    }
+                    if (!url.authority().equals(other.url.authority())) {
+                        return false
+                    }
+                    if (!url.path().equals(other.url.path())) {
+                        return false
+                    }
+                    return true
+                }
+                is Invalid -> {
+                    return false
+                }
+                else -> return false
+            }
+        }
+
+        override fun toString(): String {
+            return "Link(url=$url, parent=$parent)"
+        }
+
+        override fun equals(other: Any?): Boolean{
+            if (this === other) {
+                return true
+            }
+            if (other !is Identified) {
+                return false
+            }
+
+            if (url != other.url) {
+                return false
+            }
+            if (parent != other.parent) {
+                return false
+            }
+
+            return true
+        }
+
+        override fun hashCode(): Int{
+            var result = url.hashCode()
+            result += 31 * result + (parent?.hashCode() ?: 0)
+            return result
+        }
+
     }
 
-    fun equalHierarchy(link: Link) : Boolean {
-        if (!url.isHierarchical || !link.url.isHierarchical) {
-            return false
+    class Invalid internal constructor(raw: String) : Link(raw) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+            if (other !is Link.Invalid) {
+                return false
+            }
+
+            return true
         }
-        if (!url.authority().equals(link.url.authority())) {
-            return false
+
+        override fun hashCode(): Int {
+            return 0
         }
-        if (!url.path().equals(link.url.path())) {
-            return false
-        }
-        return true
     }
 
-    override fun toString(): String{
-        return "Link(url=$url, parent=$parent)"
-    }
 
     companion object {
         fun from(string: String, parent: Link? = null): Link {
-            return Link(URL.fromJavaURI(resolve(URI(string), parent)), parent, string)
+            try {
+                val url = URL.fromJavaURI(resolve(URI(string), parent))
+                return Link.Identified(url, parent, string)
+            } catch (e: Exception) {
+                return Link.Invalid(string)
+            }
         }
 
         private fun resolve(uri: URI, parent: Link?): URI {
             return if (uri.host != null) uri else {
-                parent?.toUri()?.resolve(uri.toString()) ?: uri
+                when (parent) {
+                    is Identified -> {
+                        //TODO(eleventigers, 14.03.16): resolve scheme relative (//path) uris
+                        return parent.toUri().resolve(uri)
+                    }
+                    is Invalid -> {
+                        return uri
+                    }
+                    else -> uri
+                }
             }
         }
     }

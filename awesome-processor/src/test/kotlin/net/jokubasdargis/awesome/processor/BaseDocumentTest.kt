@@ -8,12 +8,20 @@ import java.io.InputStreamReader
 
 open class BaseDocumentTest {
 
-    fun readmeDocument(documentResourcePath: String) : Document? {
+    fun document(documentResourcePath: String): Document {
         val documentHtml = loadResourceAsString(documentResourcePath)
-        val document = Jsoup.parse(documentHtml)
-        val readme: Element? = document.getElementById("readme")
-        val readmeHtml: String? = readme?.html()
-        return if (readmeHtml != null) Jsoup.parse(readmeHtml) else null
+        return Jsoup.parse(documentHtml)
+    }
+
+    fun subDocument(documentResourcePath: String, id: String): Document? {
+        val document = document(documentResourcePath)
+        val sub: Element? = document.getElementById(id)
+        val subHtml: String? = sub?.html()
+        return if (subHtml != null) Jsoup.parse(subHtml) else null
+    }
+
+    fun readmeDocument(documentResourcePath: String): Document? {
+        return subDocument(documentResourcePath, "readme")
     }
 
     fun loadResourceAsString(resName: String): String {
