@@ -3,31 +3,19 @@ package net.jokubasdargis.awesome.parser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import java.io.IOException
-import java.io.InputStreamReader
 
 open class BaseDocumentTest {
 
     fun document(documentResourcePath: String): Document {
-        val documentHtml = loadResourceAsString(documentResourcePath)
-        return Jsoup.parse(documentHtml)
+        val stream = javaClass.classLoader.getResourceAsStream(documentResourcePath)
+        return Jsoup.parse(stream, Charsets.UTF_8.name(), "")
     }
 
-    fun subDocument(documentResourcePath: String, id: String): Document? {
-        val document = document(documentResourcePath)
-        val sub: Element? = document.getElementById(id)
-        val subHtml: String? = sub?.html()
-        return if (subHtml != null) Jsoup.parse(subHtml) else null
+    fun subElement(documentResourcePath: String, id: String): Element? {
+        return document(documentResourcePath).getElementById(id)?.clone()
     }
 
-    fun readmeDocument(documentResourcePath: String): Document? {
-        return subDocument(documentResourcePath, "readme")
-    }
-
-    fun loadResourceAsString(resName: String): String {
-        val stream = javaClass.classLoader.getResourceAsStream(resName);
-        val reader: InputStreamReader? = stream.reader()
-        val text = reader?.readText() ?: throw IOException("Could not read $resName")
-        return text;
+    fun readmeElement(documentResourcePath: String): Element? {
+        return subElement(documentResourcePath, "readme")
     }
 }

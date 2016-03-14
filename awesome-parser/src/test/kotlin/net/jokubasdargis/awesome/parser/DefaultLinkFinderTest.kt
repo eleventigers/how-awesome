@@ -28,7 +28,7 @@ class DefaultLinkFinderTest(val documentResourcePath: String, val documentRootUr
 
     @Test fun findLinks() {
         val rootLink = Link.from(documentRootUrl)
-        val linkFinder = DefaultLinkFinder.create(readmeDocument(documentResourcePath)!!)
+        val linkFinder = DefaultLinkFinder.create(readmeElement(documentResourcePath)!!)
         val linkList = linkFinder.find(rootLink)
 
         assertThat(linkList.links()).hasSize(numberOfLinks)

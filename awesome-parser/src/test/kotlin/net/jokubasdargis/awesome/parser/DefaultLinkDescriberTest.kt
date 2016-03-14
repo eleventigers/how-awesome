@@ -8,7 +8,7 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
     @Test
     fun describeKotlin() {
         val link = Link.from("https://github.com/JavaBy/awesome-kotlin")
-        val describer = DefaultLinkDescriber.create(readmeDocument("awesome.html")!!)
+        val describer = DefaultLinkDescriber.create(readmeElement("awesome.html")!!)
         val descriptions = describer.describe(link)
 
         descriptions.forEach {
@@ -21,7 +21,7 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
     @Test
     fun describeUnity() {
         val link = Link.from("https://github.com/RyanNielson/awesome-unity")
-        val describer = DefaultLinkDescriber.create(readmeDocument("awesome.html")!!)
+        val describer = DefaultLinkDescriber.create(readmeElement("awesome.html")!!)
         val descriptions = describer.describe(link)
 
         descriptions.forEach {
@@ -35,7 +35,7 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
     @Test
     fun describeKtor() {
         val link = Link.from("https://github.com/Kotlin/ktor")
-        val describer = DefaultLinkDescriber.create(readmeDocument("awesome-kotlin.html")!!)
+        val describer = DefaultLinkDescriber.create(readmeElement("awesome-kotlin.html")!!)
         val descriptions = describer.describe(link)
 
         descriptions.forEach {
@@ -50,7 +50,7 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
     @Test
     fun describeKotlinDaggerExample() {
         val link = Link.from("https://github.com/damianpetla/kotlin-dagger-example")
-        val describer = DefaultLinkDescriber.create(readmeDocument("awesome-kotlin.html")!!)
+        val describer = DefaultLinkDescriber.create(readmeElement("awesome-kotlin.html")!!)
         val descriptions = describer.describe(link)
 
         descriptions.forEach {
@@ -66,7 +66,7 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
     @Test
     fun describeBrikk() {
         val link = Link.from("https://github.com/brikk/brikk")
-        val describer = DefaultLinkDescriber.create(readmeDocument("awesome-kotlin.html")!!)
+        val describer = DefaultLinkDescriber.create(readmeElement("awesome-kotlin.html")!!)
         val descriptions = describer.describe(link)
 
         descriptions.forEach {
@@ -81,7 +81,7 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
     @Test
     fun describeOkHttp() {
         val link = Link.from("http://square.github.io/okhttp")
-        val describer = DefaultLinkDescriber.create(readmeDocument("awesome-java.html")!!)
+        val describer = DefaultLinkDescriber.create(readmeElement("awesome-java.html")!!)
         val descriptions = describer.describe(link)
 
         descriptions.forEach {
@@ -95,7 +95,7 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
     @Test
     fun describeSwift() {
         val link = Link.from("https://github.com/matteocrippa/awesome-swift")
-        val describer = DefaultLinkDescriber.create(readmeDocument("awesome.html")!!)
+        val describer = DefaultLinkDescriber.create(readmeElement("awesome.html")!!)
         val descriptions = describer.describe(link)
 
         descriptions.forEach {
@@ -109,7 +109,7 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
     fun noneSummaryStrategy() {
         val link = Link.from("https://github.com/JavaBy/awesome-kotlin")
         val describer = DefaultLinkDescriber.create(
-                readmeDocument("awesome.html")!!, listOf(LinkDescriptionStrategies.none()))
+                readmeElement("awesome.html")!!, listOf(LinkDescriptionStrategies.none()))
         val descriptions = describer.describe(link)
 
         assertThat(descriptions[0]).isEqualTo(LinkDescription.None())
@@ -117,10 +117,10 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
 
     @Test
     fun describePlentyAwesome() {
-        val document = readmeDocument("awesome.html");
-        val linkFinder = DefaultLinkFinder.create(document!!)
+        val element = readmeElement("awesome.html");
+        val linkFinder = DefaultLinkFinder.create(element!!)
         val linkList = linkFinder.find(Link.from("https://github.com/sindresorhus/awesome"))
-        val describer = DefaultLinkDescriber.create(document)
+        val describer = DefaultLinkDescriber.create(element)
 
         linkList.links().forEach {
             val descriptions = describer.describe(it)
@@ -135,10 +135,10 @@ class DefaultLinkDescriberTest : BaseDocumentTest() {
 
     @Test
     fun describePlentyKotlin() {
-        val document = readmeDocument("awesome-kotlin.html");
-        val linkFinder = DefaultLinkFinder.create(document!!)
+        val element = readmeElement("awesome-kotlin.html");
+        val linkFinder = DefaultLinkFinder.create(element!!)
         val linkList = linkFinder.find(Link.from("https://github.com/JavaBy/awesome-kotlin"))
-        val describer = DefaultLinkDescriber.create(document)
+        val describer = DefaultLinkDescriber.create(element)
 
         linkList.links().forEach {
             val descriptions = describer.describe(it)

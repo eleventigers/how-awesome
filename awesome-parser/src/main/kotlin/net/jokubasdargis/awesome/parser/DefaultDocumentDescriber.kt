@@ -1,6 +1,6 @@
 package net.jokubasdargis.awesome.parser
 
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import java.util.HashMap
 
 internal class DefaultDocumentDescriber private constructor(
@@ -22,10 +22,10 @@ internal class DefaultDocumentDescriber private constructor(
     }
 
     companion object {
-        fun create(document: Document): DefaultDocumentDescriber {
+        fun create(element: Element): DefaultDocumentDescriber {
             return DefaultDocumentDescriber(
-                    DefaultLinkFinder.create(document),
-                    DefaultLinkDescriber.create(document))
+                    DefaultLinkFinder.create(element),
+                    DefaultLinkDescriber.create(element))
         }
     }
 }

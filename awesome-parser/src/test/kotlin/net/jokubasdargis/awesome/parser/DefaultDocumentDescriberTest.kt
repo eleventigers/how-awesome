@@ -8,7 +8,7 @@ class DefaultDocumentDescriberTest : BaseDocumentTest() {
 
     @Test
     fun describeAwesome() {
-        val describer = DefaultDocumentDescriber.create(readmeDocument("awesome.html")!!)
+        val describer = DefaultDocumentDescriber.create(readmeElement("awesome.html")!!)
         val descriptions = describer.describe(Link.from("https://github.com/sindresorhus/awesome"))
 
         assertThat(descriptions).hasSize(3)

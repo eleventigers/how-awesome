@@ -1,12 +1,11 @@
 package net.jokubasdargis.awesome.parser
 
-import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
-internal class DefaultLinkFinder private constructor(private val document: Document) : LinkFinder {
+internal class DefaultLinkFinder private constructor(private val element: Element) : LinkFinder {
 
     override fun find(rootLink: Link): LinkList {
-        val elements: List<Element> = document
+        val elements: List<Element> = element
                 .getElementsByAttribute(Html.Attr.HREF.value) ?: emptyList<Element>()
         val pairs = elements
                 .map { Pair(it, Link.from(Html.href(it), rootLink)) }
@@ -62,8 +61,8 @@ internal class DefaultLinkFinder private constructor(private val document: Docum
     }
 
     companion object {
-        fun create(document: Document): LinkFinder {
-            return DefaultLinkFinder(document)
+        fun create(element: Element): LinkFinder {
+            return DefaultLinkFinder(element)
         }
     }
 }

@@ -1,14 +1,13 @@
 package net.jokubasdargis.awesome.parser
 
-import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 internal class DefaultLinkDescriber private constructor(
-        private val document: Document,
+        private val element: Element,
         private val strategies: List<(Link) -> (Element) -> LinkDescription>) : LinkDescriber {
 
     override fun describe(value: Link): List<LinkDescription> {
-        val firstElement = if (!value.raw().isBlank()) document
+        val firstElement = if (!value.raw().isBlank()) element
                 .getElementsByAttributeValueContaining(Html.Attr.HREF.value, value.raw())
                 .firstOrNull() else null
 
@@ -20,10 +19,10 @@ internal class DefaultLinkDescriber private constructor(
     }
 
     companion object {
-        fun create(document: Document, strategies: List<(Link) -> (Element) -> LinkDescription> =
+        fun create(element: Element, strategies: List<(Link) -> (Element) -> LinkDescription> =
         listOf(LinkDescriptionStrategies.title(), LinkDescriptionStrategies.summary()))
                 : LinkDescriber {
-            return DefaultLinkDescriber(document, strategies)
+            return DefaultLinkDescriber(element, strategies)
         }
     }
 }
