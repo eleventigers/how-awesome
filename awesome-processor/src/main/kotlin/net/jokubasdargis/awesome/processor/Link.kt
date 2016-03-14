@@ -18,6 +18,23 @@ data class Link private constructor(
         return raw
     }
 
+    fun ofHost(host: Host): Boolean {
+        return host.apply(url.host().toString())
+    }
+
+    fun equalHierarchy(link: Link) : Boolean {
+        if (!url.isHierarchical || !link.url.isHierarchical) {
+            return false
+        }
+        if (!url.authority().equals(link.url.authority())) {
+            return false
+        }
+        if (!url.path().equals(link.url.path())) {
+            return false
+        }
+        return true
+    }
+
     override fun toString(): String{
         return "Link(url=$url, parent=$parent)"
     }

@@ -7,8 +7,8 @@ import org.junit.runners.Parameterized
 
 
 @RunWith(Parameterized::class)
-class LinkFinderTest(val documentResourcePath: String, val documentRootUrl: String,
-                     val numberOfLinks: Int) : BaseDocumentTest() {
+class DefaultLinkFinderTest(val documentResourcePath: String, val documentRootUrl: String,
+                            val numberOfLinks: Int) : BaseDocumentTest() {
 
     companion object {
         @JvmStatic
@@ -27,13 +27,10 @@ class LinkFinderTest(val documentResourcePath: String, val documentRootUrl: Stri
     }
 
     @Test fun findLinks() {
-        val root = Link.from(documentRootUrl)
-        val linkFinder = LinkFinder(root)
-        val linkList = linkFinder.find(readmeDocument(documentResourcePath)!!)
+        val rootLink = Link.from(documentRootUrl)
+        val linkFinder = DefaultLinkFinder.create(readmeDocument(documentResourcePath)!!)
+        val linkList = linkFinder.find(rootLink)
 
-        linkList.links()
-                .forEach(::println)
-
-        assertThat(linkList.links().size).isEqualTo(numberOfLinks)
+        assertThat(linkList.links()).hasSize(numberOfLinks)
     }
 }
