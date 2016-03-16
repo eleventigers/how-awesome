@@ -1,5 +1,7 @@
 package net.jokubasdargis.awesome.parser
 
+import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.LinkDescription
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
 import java.text.Normalizer

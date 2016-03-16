@@ -1,4 +1,4 @@
-package net.jokubasdargis.awesome.parser
+package net.jokubasdargis.awesome.core
 
 interface Relationship<T> {
     fun from() : T

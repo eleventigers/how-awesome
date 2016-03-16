@@ -12,9 +12,9 @@ apply plugin: 'kotlin'
 dependencies {
     compile project(':awesome-core')
     compile project(':awesome-util')
+    compile project(':awesome-parser')
 
     compile rootProject.ext.kotlinStdlib
-    compile rootProject.ext.jsoup
 
     testCompile rootProject.ext.junit
     testCompile rootProject.ext.truth

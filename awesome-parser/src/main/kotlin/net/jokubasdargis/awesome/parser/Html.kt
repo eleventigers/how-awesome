@@ -1,7 +1,9 @@
 package net.jokubasdargis.awesome.parser
 
+import net.jokubasdargis.awesome.util.Functions
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
+import java.util.Locale
 
 internal class Html {
 
@@ -21,7 +23,7 @@ internal class Html {
         P("p");
 
         fun apply(value: String?) : Boolean {
-            return this.value.equals(value)
+            return this.value.equals(value?.toLowerCase(Locale.ENGLISH))
         }
 
         companion object {
@@ -53,6 +55,21 @@ internal class Html {
     }
 
     companion object {
+
+        private val DEFAULT_ATTR_ELEMENTS: (Element, Attr) -> () -> List<Element> = { el, attr ->
+            {
+                el.getElementsByAttribute(attr.value) ?: emptyList<Element>()
+            }
+        }
+
+        fun byAttr(el: Element, attr: Attr) : () -> List<Element> {
+            return DEFAULT_ATTR_ELEMENTS(el, attr)
+        }
+
+        fun links(el: Element) : () -> List<Element> {
+            return byAttr(el, Attr.HREF)
+        }
+
         fun href(node: Node) : String {
             return node.attr(Attr.HREF.value).trim()
         }

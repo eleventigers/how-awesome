@@ -1,151 +1,143 @@
 package net.jokubasdargis.awesome.parser
 
 import com.google.common.truth.Truth.assertThat
+import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.LinkDescription
 import org.junit.Test
 
-class DefaultLinkDescriberTest : BaseDocumentTest() {
+class DefaultLinkDescriberIntegrationTest : BaseIntegrationTest() {
 
-    @Test
-    fun describeKotlin() {
+    @Test fun describeKotlin() {
         val link = Link.from("https://github.com/JavaBy/awesome-kotlin")
         val describer = DefaultLinkDescriber.create(readmeElement("awesome.html")!!)
-        val descriptions = describer.describe(link)
+        val descriptions = describer(link)
 
         descriptions.forEach {
             when (it) {
-                is LinkDescription.Title -> assertThat(it.title).isEqualTo("Kotlin")
+                is LinkDescription.Title -> assertThat(it()).isEqualTo("Kotlin")
             }
         }
     }
 
-    @Test
-    fun describeUnity() {
+    @Test fun describeUnity() {
         val link = Link.from("https://github.com/RyanNielson/awesome-unity")
         val describer = DefaultLinkDescriber.create(readmeElement("awesome.html")!!)
-        val descriptions = describer.describe(link)
+        val descriptions = describer(link)
 
         descriptions.forEach {
             when (it) {
-                is LinkDescription.Title -> assertThat(it.title).isEqualTo("Unity")
-                is LinkDescription.Summary -> assertThat(it.summary).isEqualTo("(Game engine)")
+                is LinkDescription.Title -> assertThat(it()).isEqualTo("Unity")
+                is LinkDescription.Summary -> assertThat(it()).isEqualTo("(Game engine)")
             }
         }
     }
 
-    @Test
-    fun describeKtor() {
+    @Test fun describeKtor() {
         val link = Link.from("https://github.com/Kotlin/ktor")
         val describer = DefaultLinkDescriber.create(readmeElement("awesome-kotlin.html")!!)
-        val descriptions = describer.describe(link)
+        val descriptions = describer(link)
 
         descriptions.forEach {
             when (it) {
-                is LinkDescription.Title -> assertThat(it.title).isEqualTo("Kotlin/ktor")
-                is LinkDescription.Summary -> assertThat(it.summary)
+                is LinkDescription.Title -> assertThat(it()).isEqualTo("Kotlin/ktor")
+                is LinkDescription.Summary -> assertThat(it())
                         .isEqualTo("Web backend framework for Kotlin")
             }
         }
     }
 
-    @Test
-    fun describeKotlinDaggerExample() {
+    @Test fun describeKotlinDaggerExample() {
         val link = Link.from("https://github.com/damianpetla/kotlin-dagger-example")
         val describer = DefaultLinkDescriber.create(readmeElement("awesome-kotlin.html")!!)
-        val descriptions = describer.describe(link)
+        val descriptions = describer(link)
 
         descriptions.forEach {
             when (it) {
-                is LinkDescription.Title -> assertThat(it.title)
+                is LinkDescription.Title -> assertThat(it())
                         .isEqualTo("damianpetla/kotlin-dagger-example")
-                is LinkDescription.Summary -> assertThat(it.summary)
-                        .isEqualTo("Example of Android project showing integration with Kotlin and Dagger 2")
+                is LinkDescription.Summary -> assertThat(it()).isEqualTo(
+                        "Example of Android project showing integration with Kotlin and Dagger 2")
             }
         }
     }
 
-    @Test
-    fun describeBrikk() {
+    @Test fun describeBrikk() {
         val link = Link.from("https://github.com/brikk/brikk")
         val describer = DefaultLinkDescriber.create(readmeElement("awesome-kotlin.html")!!)
-        val descriptions = describer.describe(link)
+        val descriptions = describer(link)
 
         descriptions.forEach {
             when (it) {
-                is LinkDescription.Title -> assertThat(it.title).isEqualTo("brikk/brikk")
-                is LinkDescription.Summary -> assertThat(it.summary)
+                is LinkDescription.Title -> assertThat(it()).isEqualTo("brikk/brikk")
+                is LinkDescription.Summary -> assertThat(it())
                         .isEqualTo("Brikk dependency manager (Kotlin, KotlinJS, Java, …​)")
             }
         }
     }
 
-    @Test
-    fun describeOkHttp() {
+    @Test fun describeOkHttp() {
         val link = Link.from("http://square.github.io/okhttp")
         val describer = DefaultLinkDescriber.create(readmeElement("awesome-java.html")!!)
-        val descriptions = describer.describe(link)
+        val descriptions = describer(link)
 
         descriptions.forEach {
             when (it) {
-                is LinkDescription.Title -> assertThat(it.title).isEqualTo("OkHttp")
-                is LinkDescription.Summary -> assertThat(it.summary).isEqualTo("HTTP+SPDY client")
+                is LinkDescription.Title -> assertThat(it()).isEqualTo("OkHttp")
+                is LinkDescription.Summary -> assertThat(it()).isEqualTo("HTTP+SPDY client")
             }
         }
     }
 
-    @Test
-    fun describeSwift() {
+    @Test fun describeSwift() {
         val link = Link.from("https://github.com/matteocrippa/awesome-swift")
         val describer = DefaultLinkDescriber.create(readmeElement("awesome.html")!!)
-        val descriptions = describer.describe(link)
+        val descriptions = describer(link)
 
         descriptions.forEach {
             when (it) {
-                is LinkDescription.Title -> assertThat(it.title).isEqualTo("Swift")
+                is LinkDescription.Title -> assertThat(it()).isEqualTo("Swift")
             }
         }
     }
 
-    @Test
-    fun noneSummaryStrategy() {
+    @Test fun noneSummaryStrategy() {
         val link = Link.from("https://github.com/JavaBy/awesome-kotlin")
         val describer = DefaultLinkDescriber.create(
                 readmeElement("awesome.html")!!, listOf(LinkDescriptionStrategies.none()))
-        val descriptions = describer.describe(link)
+        val descriptions = describer(link)
 
         assertThat(descriptions[0]).isEqualTo(LinkDescription.None())
     }
 
-    @Test
-    fun describePlentyAwesome() {
+    @Test fun describePlentyAwesome() {
         val element = readmeElement("awesome.html");
-        val linkFinder = DefaultLinkFinder.create(element!!)
-        val linkList = linkFinder.find(Link.from("https://github.com/sindresorhus/awesome"))
+        val linkExtractor = DefaultLinkExtractor.create(Html.links(element!!))
+        val links = linkExtractor(Link.from("https://github.com/sindresorhus/awesome"))
         val describer = DefaultLinkDescriber.create(element)
 
-        linkList.links().forEach {
-            val descriptions = describer.describe(it)
+        links.forEach {
+            val descriptions = describer(it)
             descriptions.forEach {
                 when (it) {
-                    is LinkDescription.Title -> assertThat(it.title).isNotEmpty()
-                    is LinkDescription.Summary -> assertThat(it.summary).isNotEmpty()
+                    is LinkDescription.Title -> assertThat(it()).isNotEmpty()
+                    is LinkDescription.Summary -> assertThat(it()).isNotEmpty()
                 }
             }
         }
     }
 
-    @Test
-    fun describePlentyKotlin() {
+    @Test fun describePlentyKotlin() {
         val element = readmeElement("awesome-kotlin.html");
-        val linkFinder = DefaultLinkFinder.create(element!!)
-        val linkList = linkFinder.find(Link.from("https://github.com/JavaBy/awesome-kotlin"))
+        val linkExtractor = DefaultLinkExtractor.create(Html.links(element!!))
+        val links = linkExtractor(Link.from("https://github.com/JavaBy/awesome-kotlin"))
         val describer = DefaultLinkDescriber.create(element)
 
-        linkList.links().forEach {
-            val descriptions = describer.describe(it)
+        links.forEach {
+            val descriptions = describer(it)
             descriptions.forEach {
                 when (it) {
-                    is LinkDescription.Title -> assertThat(it.title).isNotEmpty()
-                    is LinkDescription.Summary -> assertThat(it.summary).isNotEmpty()
+                    is LinkDescription.Title -> assertThat(it()).isNotEmpty()
+                    is LinkDescription.Summary -> assertThat(it()).isNotEmpty()
                 }
             }
         }

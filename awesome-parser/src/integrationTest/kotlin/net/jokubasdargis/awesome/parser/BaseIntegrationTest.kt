@@ -3,12 +3,15 @@ package net.jokubasdargis.awesome.parser
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import java.io.InputStream
 
-open class BaseDocumentTest {
+open class BaseIntegrationTest {
+    fun documentStream(documentResourcePath: String): InputStream {
+        return javaClass.classLoader.getResourceAsStream(documentResourcePath)
+    }
 
     fun document(documentResourcePath: String): Document {
-        val stream = javaClass.classLoader.getResourceAsStream(documentResourcePath)
-        return Jsoup.parse(stream, Charsets.UTF_8.name(), "")
+        return Jsoup.parse(documentStream(documentResourcePath), Charsets.UTF_8.name(), "")
     }
 
     fun subElement(documentResourcePath: String, id: String): Element? {

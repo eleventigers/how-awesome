@@ -1,4 +1,6 @@
 rootProject.name = 'awesome-root'
 
+include 'awesome-core'
+include 'awesome-util'
 include 'awesome-parser'
-
+include 'awesome-crawler'

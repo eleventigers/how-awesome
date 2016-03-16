@@ -1,4 +1,8 @@
 package net.jokubasdargis.awesome.parser
 
-interface DocumentDescriber: Describer<Link, List<DocumentDescription>> {
+import net.jokubasdargis.awesome.core.DocumentDescription
+import net.jokubasdargis.awesome.core.Link
+import java.io.Closeable
+
+interface DocumentDescriber : Closeable, (Link) -> List<DocumentDescription> {
 }

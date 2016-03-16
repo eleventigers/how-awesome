@@ -1,8 +1,13 @@
-package net.jokubasdargis.awesome.parser
+package net.jokubasdargis.awesome.core
 
 sealed class LinkDescription()  {
 
-    class Title(val title: String): LinkDescription() {
+    class Title(private val value: String): LinkDescription(), () -> String {
+
+        override fun invoke(): String {
+            return value
+        }
+
         override fun equals(other: Any?): Boolean{
             if (this === other) {
                 return true
@@ -11,7 +16,7 @@ sealed class LinkDescription()  {
                 return false
             }
 
-            if (title != other.title) {
+            if (value != other.value) {
                 return false
             }
 
@@ -19,11 +24,20 @@ sealed class LinkDescription()  {
         }
 
         override fun hashCode(): Int{
-            return title.hashCode()
+            return value.hashCode()
+        }
+
+        override fun toString(): String{
+            return "Title(value='$value')"
         }
     }
 
-    class Summary(val summary: String): LinkDescription() {
+    class Summary(private val value: String): LinkDescription(), () -> String {
+
+        override fun invoke(): String {
+            return value
+        }
+
         override fun equals(other: Any?): Boolean{
             if (this === other) {
                 return true
@@ -32,7 +46,7 @@ sealed class LinkDescription()  {
                 return false
             }
 
-            if (summary != other.summary) {
+            if (value != other.value) {
                 return false
             }
 
@@ -40,7 +54,11 @@ sealed class LinkDescription()  {
         }
 
         override fun hashCode(): Int{
-            return summary.hashCode()
+            return value.hashCode()
+        }
+
+        override fun toString(): String{
+            return "Summary(value='$value')"
         }
     }
 
@@ -58,6 +76,10 @@ sealed class LinkDescription()  {
 
         override fun hashCode(): Int {
             return 0
+        }
+
+        override fun toString(): String{
+            return "None()"
         }
     }
 }

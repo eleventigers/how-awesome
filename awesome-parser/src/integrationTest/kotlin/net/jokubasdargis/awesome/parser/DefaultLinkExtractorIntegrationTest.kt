@@ -1,16 +1,19 @@
 package net.jokubasdargis.awesome.parser
 
 import com.google.common.truth.Truth.assertThat
+import net.jokubasdargis.awesome.core.Link
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 
 @RunWith(Parameterized::class)
-class DefaultLinkFinderTest(val documentResourcePath: String, val documentRootUrl: String,
-                            val numberOfLinks: Int) : BaseDocumentTest() {
+class DefaultLinkExtractorIntegrationTest(val documentResourcePath: String,
+                                          val documentRootUrl: String,
+                                          val numberOfLinks: Int) : BaseIntegrationTest() {
 
     companion object {
+        @Suppress("unused")
         @JvmStatic
         @Parameterized.Parameters
         fun data(): Collection<Array<Any>> {
@@ -28,9 +31,10 @@ class DefaultLinkFinderTest(val documentResourcePath: String, val documentRootUr
 
     @Test fun findLinks() {
         val rootLink = Link.from(documentRootUrl)
-        val linkFinder = DefaultLinkFinder.create(readmeElement(documentResourcePath)!!)
-        val linkList = linkFinder.find(rootLink)
+        val linkExtractor = DefaultLinkExtractor.create(
+                Html.links(readmeElement(documentResourcePath)!!))
+        val links = linkExtractor(rootLink)
 
-        assertThat(linkList.links()).hasSize(numberOfLinks)
+        assertThat(links).hasSize(numberOfLinks)
     }
 }

@@ -10,20 +10,12 @@ buildscript {
 apply plugin: 'kotlin'
 
 dependencies {
-    compile project(':awesome-core')
-    compile project(':awesome-util')
-
     compile rootProject.ext.kotlinStdlib
-    compile rootProject.ext.jsoup
+    compile rootProject.ext.galimatias
 
     testCompile rootProject.ext.junit
     testCompile rootProject.ext.truth
     testCompile rootProject.ext.mockito
-}
-
-sourceSets {
-    test.kotlin.srcDirs += 'src/integrationTest/kotlin'
-    test.resources.srcDirs += 'src/integrationTest/resources'
 }
 
 test.testClassesDir = project.tasks.compileTestKotlin.destinationDir

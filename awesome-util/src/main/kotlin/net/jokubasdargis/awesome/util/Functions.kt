@@ -1,6 +1,6 @@
-package net.jokubasdargis.awesome.parser
+package net.jokubasdargis.awesome.util
 
-internal class Functions {
+class Functions {
     companion object {
         private val OR: (Boolean, Boolean) -> Boolean = { a, b -> a || b }
         private val AND: (Boolean, Boolean) -> Boolean = { a, b -> a && b }
@@ -9,11 +9,23 @@ internal class Functions {
 
         fun <T> and(vararg f: (T) -> Boolean): (T) -> Boolean = { reduce(true, AND, *f) (it) }
 
+        fun <T> not(f: (T) -> Boolean): (T) -> Boolean = { t: T -> !f(t) }
+
         fun <T> always(condition: Boolean): (T) -> Boolean = { condition }
 
         fun <T, R> reduce(initial: R, compose: (R, R) -> R, vararg f: (T) -> R): (T) -> R {
             return { t: T ->
                 f.fold(initial, { r, f -> compose(r, f(t)) })
+            }
+        }
+
+        fun <R> memoize(f: () -> R): () -> R {
+            var value : R? = null
+            return {
+                if (value == null) {
+                    value = f()
+                }
+                value!!
             }
         }
     }

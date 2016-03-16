@@ -1,16 +1,56 @@
-package net.jokubasdargis.awesome.parser
+package net.jokubasdargis.awesome.core
 
 import io.mola.galimatias.URL
 import java.net.URI
 
-sealed class Link(private val raw: String) {
+sealed class Link private constructor(val raw: String) {
 
-    fun raw(): String {
-        return raw
-    }
+    sealed class Identified private constructor(protected val url: URL, raw: String) : Link(raw) {
 
-    class Identified internal constructor(
-            private val url: URL, val parent: Link? = null, raw: String) : Link(raw) {
+        fun toOrphan(): Orphan {
+            return when (this) {
+                is Orphan -> this
+                else -> Orphan(url, raw)
+            }
+        }
+
+        class Orphan(url: URL, raw: String) : Identified(url, raw) {
+
+            override fun toString(): String {
+                return "Orphan(url=$url)"
+            }
+        }
+
+        class Parented(url: URL, raw: String, val parent: Link) : Identified(url, raw) {
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+                if (other !is Parented) {
+                    return false
+                }
+                if (!super.equals(other)) {
+                    return false
+                }
+
+                if (parent != other.parent) {
+                    return false
+                }
+
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = super.hashCode()
+                result += 31 * result + parent.hashCode()
+                return result
+            }
+
+            override fun toString(): String {
+                return "Parented(url=$url, parent=$parent)"
+            }
+        }
 
         fun toUri(): URI {
             return url.toJavaURI()
@@ -18,6 +58,10 @@ sealed class Link(private val raw: String) {
 
         fun toUrl(): java.net.URL {
             return url.toJavaURL()
+        }
+
+        fun pathSegments(): List<String> {
+            return url.pathSegments() ?: emptyList()
         }
 
         fun ofHost(host: Host): Boolean {
@@ -45,11 +89,7 @@ sealed class Link(private val raw: String) {
             }
         }
 
-        override fun toString(): String {
-            return "Link(url=$url, parent=$parent)"
-        }
-
-        override fun equals(other: Any?): Boolean{
+        override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
             }
@@ -60,19 +100,13 @@ sealed class Link(private val raw: String) {
             if (url != other.url) {
                 return false
             }
-            if (parent != other.parent) {
-                return false
-            }
 
             return true
         }
 
-        override fun hashCode(): Int{
-            var result = url.hashCode()
-            result += 31 * result + (parent?.hashCode() ?: 0)
-            return result
+        override fun hashCode(): Int {
+            return url.hashCode()
         }
-
     }
 
     class Invalid internal constructor(raw: String) : Link(raw) {
@@ -92,12 +126,15 @@ sealed class Link(private val raw: String) {
         }
     }
 
-
     companion object {
         fun from(string: String, parent: Link? = null): Link {
             try {
                 val url = URL.fromJavaURI(resolve(URI(string), parent))
-                return Link.Identified(url, parent, string)
+                if (parent != null) {
+                    return Link.Identified.Parented(url, string, parent)
+                } else {
+                    return Link.Identified.Orphan(url, string)
+                }
             } catch (e: Exception) {
                 return Link.Invalid(string)
             }
@@ -118,4 +155,19 @@ sealed class Link(private val raw: String) {
             }
         }
     }
+}
+
+fun <T : Iterable<Link>> T.ofHost(host: Host): Iterable<Link.Identified> {
+    return filter {
+        when (it) {
+            is Link.Identified -> {
+                it.ofHost(host)
+            }
+            else -> false
+        }
+    }.map { it as Link.Identified }
+}
+
+fun <T : Iterable<Link.Identified>> T.asOrphans(): Iterable<Link.Identified.Orphan> {
+    return map { it.toOrphan() }
 }

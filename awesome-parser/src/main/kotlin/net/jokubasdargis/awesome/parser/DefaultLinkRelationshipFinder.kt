@@ -1,14 +1,17 @@
 package net.jokubasdargis.awesome.parser
 
+import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.LinkRelationship
+import net.jokubasdargis.awesome.core.Relationship
+import net.jokubasdargis.awesome.util.Functions
 import org.jsoup.nodes.Element
 
-internal class DefaultLinkFinder private constructor(private val element: Element) : LinkFinder {
+internal class DefaultLinkRelationshipFinder private constructor(
+        private val linkElements: () -> List<Element>) : (Link) -> List<Relationship<Link>> {
 
-    override fun find(rootLink: Link): LinkList {
-        val elements: List<Element> = element
-                .getElementsByAttribute(Html.Attr.HREF.value) ?: emptyList<Element>()
-        val pairs = elements
-                .map { Pair(it, Link.from(Html.href(it), rootLink)) }
+    override fun invoke(value: Link): List<Relationship<Link>> {
+        val pairs = linkElements()
+                .map { Pair(it, Link.from(Html.href(it), value)) }
                 .map {
                     val that = it
                     val el = that.first
@@ -19,7 +22,7 @@ internal class DefaultLinkFinder private constructor(private val element: Elemen
 
                     Pair(it.second, allLinks)
                 }
-                .groupBy { p -> p.first.raw() }
+                .groupBy { p -> p.first.raw }
                 .map { g ->
                     // prefer link with greater relations
                     g.value.fold(g.value.first(), { a, p ->
@@ -27,12 +30,18 @@ internal class DefaultLinkFinder private constructor(private val element: Elemen
                     })
                 }
 
-        return LinkList.from(pairs)
+        val relationships = pairs.map { p ->
+            p.second.map {
+                LinkRelationship(p.first, it)
+            }
+        }.reduce { a, l -> a.plus(l) }
+
+        return relationships
     }
 
     private fun nearbyListLinks(el: Element): List<Element> {
-        val parent = el.parent()
-        return Html.closestByTag(
+        val parent: Element? = el.parent()
+        return if (parent != null) Html.closestByTag(
                 parent,
                 Html.Tag.UL,
                 Functions.and(
@@ -40,12 +49,12 @@ internal class DefaultLinkFinder private constructor(private val element: Elemen
                         { n -> !Html.Tag.LI.apply(n.tagName()) }
                 ))
                 ?.getElementsByAttribute(Html.Attr.HREF.value)
-                ?: emptyList()
+                ?: emptyList() else emptyList()
     }
 
     private fun nearbyParagraphLinks(el: Element): List<Element> {
-        val parent = el.parent()
-        return Html.closestByTag(
+        val parent: Element? = el.parent()
+        return if (parent != null) Html.closestByTag(
                 parent,
                 Html.Tag.P,
                 Functions.and(
@@ -57,12 +66,12 @@ internal class DefaultLinkFinder private constructor(private val element: Elemen
                 ))
                 ?.getElementsByAttribute(Html.Attr.HREF.value)
                 ?.filter { it -> it.parent() != parent }
-                ?: emptyList()
+                ?: emptyList() else emptyList()
     }
 
     companion object {
-        fun create(element: Element): LinkFinder {
-            return DefaultLinkFinder(element)
+        fun create(linkElements: () -> List<Element>): (Link) -> List<Relationship<Link>> {
+            return DefaultLinkRelationshipFinder(linkElements)
         }
     }
 }
