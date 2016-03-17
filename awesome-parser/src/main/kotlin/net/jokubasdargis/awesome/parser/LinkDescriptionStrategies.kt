@@ -10,7 +10,7 @@ internal class LinkDescriptionStrategies {
     companion object {
         private val NONE_STRATEGY: (Link) -> (Element) -> LinkDescription = { link ->
             {
-                LinkDescription.None()
+                LinkDescription.None(link)
             }
         }
 
@@ -23,9 +23,9 @@ internal class LinkDescriptionStrategies {
 
                 title = clean(title)
                 if (title != null) {
-                    LinkDescription.Title(title)
+                    LinkDescription.Title(link, title)
                 } else {
-                    LinkDescription.None()
+                    LinkDescription.None(link)
                 }
             }
         }
@@ -34,9 +34,9 @@ internal class LinkDescriptionStrategies {
             {
                 var summary = clean(findTextInSiblings(it))
                 if (summary != null) {
-                    LinkDescription.Summary(summary)
+                    LinkDescription.Summary(link, summary)
                 } else {
-                    LinkDescription.None()
+                    LinkDescription.None(link)
                 }
             }
         }

@@ -2,18 +2,18 @@ package net.jokubasdargis.awesome.core
 
 import java.util.Locale
 
-data class Host private constructor(val name: String) {
+data class ContentType private constructor(val value: String) {
 
     fun apply(host: String?) : Boolean {
-        return name.equals(host?.toLowerCase(Locale.ENGLISH));
+        return value.equals(host?.toLowerCase(Locale.ENGLISH));
     }
 
     companion object {
-        fun from(value : String?) : Host? {
+        fun from(value : String?) : ContentType? {
             if (value == null || value.isBlank()) {
                 return null
             }
-            return Host(value);
+            return ContentType(value);
         }
     }
 }

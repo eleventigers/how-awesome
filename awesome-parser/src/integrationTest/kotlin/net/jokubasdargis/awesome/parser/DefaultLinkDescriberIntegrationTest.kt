@@ -106,7 +106,7 @@ class DefaultLinkDescriberIntegrationTest : BaseIntegrationTest() {
                 readmeElement("awesome.html")!!, listOf(LinkDescriptionStrategies.none()))
         val descriptions = describer(link)
 
-        assertThat(descriptions[0]).isEqualTo(LinkDescription.None())
+        assertThat(descriptions[0]).isEqualTo(LinkDescription.None(link))
     }
 
     @Test fun describePlentyAwesome() {

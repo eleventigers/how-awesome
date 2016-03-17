@@ -11,6 +11,12 @@ subprojects {
 
     group = GROUP
     version = VERSION_NAME
+
+    configurations.all {
+        resolutionStrategy {
+            force rootProject.ext.guava
+        }
+    }
 }
 
 task clean(type: Delete) {
@@ -18,16 +24,25 @@ task clean(type: Delete) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.10'
+    gradleVersion = '2.12'
     distributionUrl = "https://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
 
 ext {
-    kotlinPlugin = 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.0'
-    kotlinStdlib = 'org.jetbrains.kotlin:kotlin-stdlib:1.0.0'
+    kotlinVersion = '1.0.1'
+    okhttp3Version = '3.2.0'
+
+    kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
     jsoup = 'org.jsoup:jsoup:1.8.3'
     galimatias = 'io.mola.galimatias:galimatias:0.2.1'
+    guava = 'com.google.guava:guava:19.0'
+    okhttp3 = "com.squareup.okhttp3:okhttp:$okhttp3Version"
+    okhttp3Logging = "com.squareup.okhttp3:logging-interceptor:$okhttp3Version"
+    logback = 'ch.qos.logback:logback-classic:1.1.6'
+    tikaCore = 'org.apache.tika:tika-core:1.12'
+    tape = 'com.squareup:tape:1.2.3'
 
     junit = 'junit:junit:4.12'
     truth = 'com.google.truth:truth:0.27'

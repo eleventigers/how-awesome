@@ -1,8 +1,8 @@
 package net.jokubasdargis.awesome.core
 
-sealed class LinkDescription()  {
+sealed class LinkDescription(val link: Link)  {
 
-    class Title(private val value: String): LinkDescription(), () -> String {
+    class Title(link: Link, private val value: String): LinkDescription(link), () -> String {
 
         override fun invoke(): String {
             return value
@@ -15,16 +15,19 @@ sealed class LinkDescription()  {
             if (other !is Title) {
                 return false
             }
-
+            if (!super.equals(other)) {
+                return false
+            }
             if (value != other.value) {
                 return false
             }
-
             return true
         }
 
         override fun hashCode(): Int{
-            return value.hashCode()
+            var result = super.hashCode()
+            result += 31 * result + value.hashCode()
+            return result
         }
 
         override fun toString(): String{
@@ -32,7 +35,7 @@ sealed class LinkDescription()  {
         }
     }
 
-    class Summary(private val value: String): LinkDescription(), () -> String {
+    class Summary(link: Link, private val value: String): LinkDescription(link), () -> String {
 
         override fun invoke(): String {
             return value
@@ -45,16 +48,19 @@ sealed class LinkDescription()  {
             if (other !is Summary) {
                 return false
             }
-
+            if (!super.equals(other)) {
+                return false
+            }
             if (value != other.value) {
                 return false
             }
-
             return true
         }
 
         override fun hashCode(): Int{
-            return value.hashCode()
+            var result = super.hashCode()
+            result += 31 * result + value.hashCode()
+            return result
         }
 
         override fun toString(): String{
@@ -62,7 +68,8 @@ sealed class LinkDescription()  {
         }
     }
 
-    class None(): LinkDescription() {
+    class None(link: Link): LinkDescription(link) {
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -70,16 +77,35 @@ sealed class LinkDescription()  {
             if (other !is None) {
                 return false
             }
-
+            if (!super.equals(other)) {
+                return false
+            }
             return true
         }
 
         override fun hashCode(): Int {
-            return 0
+            return super.hashCode()
         }
 
         override fun toString(): String{
             return "None()"
         }
+    }
+
+    override fun equals(other: Any?): Boolean{
+        if (this === other) {
+            return true
+        }
+        if (other !is LinkDescription) {
+            return false
+        }
+        if (link != other.link) {
+            return false
+        }
+        return true
+    }
+
+    override fun hashCode(): Int{
+        return link.hashCode()
     }
 }

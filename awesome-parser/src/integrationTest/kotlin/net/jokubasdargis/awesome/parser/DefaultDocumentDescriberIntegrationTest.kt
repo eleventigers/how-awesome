@@ -9,6 +9,10 @@ import org.junit.Test
 
 class DefaultDocumentDescriberIntegrationTest : BaseIntegrationTest() {
 
+    companion object {
+        private val GITHUB = Host.from("github.com")!!
+    }
+
     @Test fun describeAwesome() {
         val describer = DefaultDocumentDescriber.create(readmeElement("awesome.html")!!)
         val descriptions = describer(Link.from("https://github.com/sindresorhus/awesome"))
@@ -19,8 +23,8 @@ class DefaultDocumentDescriberIntegrationTest : BaseIntegrationTest() {
             when (it) {
                 is DocumentDescription.Links -> {
                     assertThat(it()).hasSize(318)
-                    assertThat(it.ofHost(Host.GITHUB)).hasSize(311)
-                    assertThat(it.notOfHost(Host.GITHUB)).hasSize(7)
+                    assertThat(it.ofHost(GITHUB)).hasSize(311)
+                    assertThat(it.notOfHost(GITHUB)).hasSize(7)
                     assertThat(it.identified()).hasSize(318)
                     assertThat(it.invalid()).hasSize(0)
                 }
@@ -28,7 +32,7 @@ class DefaultDocumentDescriberIntegrationTest : BaseIntegrationTest() {
                     assertThat(it()).hasSize(344)
                 }
                 is DocumentDescription.LinkDescriptions -> {
-                    assertThat(it()).hasSize(318)
+                    assertThat(it()).hasSize(636)
                 }
             }
         }
@@ -46,14 +50,14 @@ class DefaultDocumentDescriberIntegrationTest : BaseIntegrationTest() {
                     assertThat(it()).hasSize(5)
                     assertThat(it.identified()).hasSize(4)
                     assertThat(it.invalid()).hasSize(1)
-                    assertThat(it.ofHost(Host.GITHUB)).hasSize(0)
-                    assertThat(it.notOfHost(Host.GITHUB)).hasSize(4)
+                    assertThat(it.ofHost(GITHUB)).hasSize(0)
+                    assertThat(it.notOfHost(GITHUB)).hasSize(4)
                 }
                 is DocumentDescription.LinkRelationships -> {
                     assertThat(it()).hasSize(1)
                 }
                 is DocumentDescription.LinkDescriptions -> {
-                    assertThat(it()).hasSize(4)
+                    assertThat(it()).hasSize(8)
                 }
             }
         }
@@ -71,14 +75,14 @@ class DefaultDocumentDescriberIntegrationTest : BaseIntegrationTest() {
                     assertThat(it()).hasSize(286)
                     assertThat(it.identified()).hasSize(258)
                     assertThat(it.invalid()).hasSize(28)
-                    assertThat(it.ofHost(Host.GITHUB)).hasSize(0)
-                    assertThat(it.notOfHost(Host.GITHUB)).hasSize(257)
+                    assertThat(it.ofHost(GITHUB)).hasSize(0)
+                    assertThat(it.notOfHost(GITHUB)).hasSize(257)
                 }
                 is DocumentDescription.LinkRelationships -> {
                     assertThat(it()).hasSize(270)
                 }
                 is DocumentDescription.LinkDescriptions -> {
-                    assertThat(it()).hasSize(257)
+                    assertThat(it()).hasSize(572)
                 }
             }
         }

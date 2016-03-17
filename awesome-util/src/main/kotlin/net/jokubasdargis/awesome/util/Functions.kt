@@ -15,7 +15,7 @@ class Functions {
 
         fun <T, R> reduce(initial: R, compose: (R, R) -> R, vararg f: (T) -> R): (T) -> R {
             return { t: T ->
-                f.fold(initial, { r, f -> compose(r, f(t)) })
+                f.fold(initial, { acc, f -> compose(acc, f(t)) })
             }
         }
 

@@ -33,11 +33,9 @@ sealed class DocumentDescription {
             if (other !is Links) {
                 return false
             }
-
             if (value != other.value) {
                 return false
             }
-
             return true
         }
 
@@ -50,10 +48,10 @@ sealed class DocumentDescription {
         }
     }
 
-    class LinkDescriptions(private val value: Map<Link, List<LinkDescription>>) :
-            DocumentDescription(), () -> Map<Link, List<LinkDescription>> {
+    class LinkDescriptions(private val value: List<LinkDescription>) :
+            DocumentDescription(), () -> List<LinkDescription> {
 
-        override fun invoke(): Map<Link, List<LinkDescription>> {
+        override fun invoke(): List<LinkDescription> {
             return value
         }
 
@@ -64,11 +62,9 @@ sealed class DocumentDescription {
             if (other !is LinkDescriptions) {
                 return false
             }
-
             if (value != other.value) {
                 return false
             }
-
             return true
         }
 
@@ -95,11 +91,9 @@ sealed class DocumentDescription {
             if (other !is LinkRelationships) {
                 return false
             }
-
             if (value != other.value) {
                 return false
             }
-
             return true
         }
 

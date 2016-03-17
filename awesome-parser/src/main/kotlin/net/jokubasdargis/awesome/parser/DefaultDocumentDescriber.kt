@@ -6,6 +6,7 @@ import net.jokubasdargis.awesome.core.LinkDescription
 import net.jokubasdargis.awesome.core.Relationship
 import net.jokubasdargis.awesome.util.Functions
 import org.jsoup.nodes.Element
+import java.util.ArrayList
 import java.util.HashMap
 
 internal class DefaultDocumentDescriber private constructor(
@@ -18,8 +19,8 @@ internal class DefaultDocumentDescriber private constructor(
         val links = linkExtractor(value)
         val linkRelationships = linkRelationshipFinder(value)
         val linkDescriptions = links
-                .fold(HashMap<Link, List<LinkDescription>>()) { acc, v ->
-                    acc.put(v, linkDescriber(v))
+                .fold(ArrayList<LinkDescription>()) { acc, v ->
+                    linkDescriber(v).forEach { acc.add(it) }
                     acc
                 }
 

@@ -1,6 +1,9 @@
 package net.jokubasdargis.awesome.core
 
 import io.mola.galimatias.URL
+import io.mola.galimatias.canonicalize.CombinedCanonicalizer
+import io.mola.galimatias.canonicalize.RFC3986Canonicalizer
+import io.mola.galimatias.canonicalize.StripPartCanonicalizer
 import java.net.URI
 
 sealed class Link private constructor(val raw: String) {
@@ -64,6 +67,10 @@ sealed class Link private constructor(val raw: String) {
             return url.pathSegments() ?: emptyList()
         }
 
+        fun host(): Host? {
+            return Host.from(url.host()?.toString())
+        }
+
         fun ofHost(host: Host): Boolean {
             return host.apply(url.host()?.toString())
         }
@@ -87,6 +94,10 @@ sealed class Link private constructor(val raw: String) {
                 }
                 else -> return false
             }
+        }
+
+        fun canonicalize(): String {
+            return CANONICALIZER.canonicalize(url).toString()
         }
 
         override fun equals(other: Any?): Boolean {
@@ -127,6 +138,10 @@ sealed class Link private constructor(val raw: String) {
     }
 
     companion object {
+        private val CANONICALIZER = CombinedCanonicalizer(
+                StripPartCanonicalizer(StripPartCanonicalizer.Part.FRAGMENT),
+                RFC3986Canonicalizer())
+
         fun from(string: String, parent: Link? = null): Link {
             try {
                 val url = URL.fromJavaURI(resolve(URI(string), parent))

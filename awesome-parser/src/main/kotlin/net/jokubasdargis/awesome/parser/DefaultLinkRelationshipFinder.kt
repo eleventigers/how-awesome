@@ -30,7 +30,7 @@ internal class DefaultLinkRelationshipFinder private constructor(
                     })
                 }
 
-        val relationships = pairs.map { p ->
+        val relationships = if (pairs.isEmpty()) emptyList() else pairs.map { p ->
             p.second.map {
                 LinkRelationship(p.first, it)
             }
