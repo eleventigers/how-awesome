@@ -36,12 +36,12 @@ class DefaultCrawlerIntegrationTest : BaseIntegrationTest() {
             }
         }
 
-        executor.invokeAll(tasks, 500, TimeUnit.SECONDS)
+        executor.invokeAll(tasks, 5, TimeUnit.SECONDS)
     }
 
     @Test fun fileQueueLinkFrontier() {
         val fetcher = OkHttpLinkFetcher.create()
-        val file = File(temporaryFolder.getRoot(), "frontier")
+        val file = File(temporaryFolder.root, "frontier")
         val linkFrontier = FileQueueLinkFrontier.create(file)
         linkFrontier.add(LINK_AWESOME)
 

@@ -5,7 +5,7 @@ import net.jokubasdargis.awesome.core.Link
 import org.junit.Test
 
 
-class DefaultLinkFrontierTest {
+class InMemoryLinkFrontierTest {
 
     companion object {
         private val LINK_A = Link.from("http://google.com")
@@ -14,28 +14,27 @@ class DefaultLinkFrontierTest {
 
     private val sut = InMemoryQueueLinkFrontier.create()
 
-    @Test fun offer() {
+    @Test fun add() {
         val result = sut.add(LINK_A)
 
         assertThat(result).isTrue()
     }
 
-    @Test fun offerRemove() {
+    @Test fun addRemove() {
         sut.add(LINK_A)
-        val link = sut.iterator().next()
 
-        assertThat(link).isEqualTo(LINK_A)
+        assertThat(sut.next()).isEqualTo(LINK_A)
     }
 
-    @Test fun multipleOfferRemove() {
+    @Test fun multipleAddThenNext() {
         sut.add(LINK_A)
         sut.add(LINK_B)
+        sut.add(LINK_B)
+        sut.add(LINK_A)
 
-        val iterator = sut.iterator()
-        val firstLink = iterator.next()
-        val secondLink = iterator.next()
-
-        assertThat(firstLink).isEqualTo(LINK_A)
-        assertThat(secondLink).isEqualTo(LINK_B)
+        assertThat(sut.next()).isEqualTo(LINK_A)
+        assertThat(sut.next()).isEqualTo(LINK_B)
+        assertThat(sut.next()).isEqualTo(LINK_B)
+        assertThat(sut.next()).isEqualTo(LINK_A)
     }
 }

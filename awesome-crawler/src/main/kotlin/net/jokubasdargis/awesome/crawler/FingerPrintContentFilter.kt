@@ -31,20 +31,20 @@ internal class FingerPrintContentFilter private constructor(
 
     companion object {
 
+        private val LOGGER = LoggerFactory.getLogger(FingerPrintContentFilter::class.java)
+
+        private class Holder {
+            companion object {
+                val INSTANCE = create()
+            }
+        }
+
         private class HashFunctionDelegateHasher(
                 private val delegate: HashFunction) : (InputStream) -> Pair<Int, Long> {
             override fun invoke(stream: InputStream): Pair<Int, Long> {
                 val bytes = ByteStreams.toByteArray(stream)
                 val hash = delegate.hashBytes(bytes).asLong()
                 return Pair(bytes.size, hash)
-            }
-        }
-
-        private val LOGGER = LoggerFactory.getLogger(FingerPrintContentFilter::class.java)
-
-        private class Holder {
-            companion object {
-                val INSTANCE = create()
             }
         }
 

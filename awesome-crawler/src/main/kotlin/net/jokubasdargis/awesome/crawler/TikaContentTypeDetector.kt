@@ -11,7 +11,10 @@ internal class TikaContentTypeDetector private constructor(
         val detector: Detector) : (InputStream?, String?) -> ContentType? {
 
     override fun invoke(stream: InputStream?, resName: String?): ContentType? {
-        val metaData = if (!resName.isNullOrBlank()) {
+        val metaData = if (resName != null) {
+            if (resName.isNullOrBlank()) {
+                return null
+            }
             val m = Metadata()
             m.add(TikaMetadataKeys.RESOURCE_NAME_KEY, resName)
             m
