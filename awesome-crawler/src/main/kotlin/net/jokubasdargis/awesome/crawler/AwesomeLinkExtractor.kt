@@ -5,7 +5,9 @@ import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.parser.AwesomeParsers
 import java.io.InputStream
 
-internal class AwesomeLinkExtractor private constructor() : ContentProcessor<Iterable<Link>> {
+internal class AwesomeLinkExtractor private constructor(
+        private val extractorFactory: (InputStream) -> (Link) -> Iterable<Link>) :
+        ContentProcessor<Iterable<Link>> {
 
     override fun supportedContentTypes(): Set<ContentType> {
         return setOf(ContentTypes.html())
@@ -16,15 +18,15 @@ internal class AwesomeLinkExtractor private constructor() : ContentProcessor<Ite
             return emptyList()
         }
 
-        val extractor = AwesomeParsers.extractAwesomeReadmeLinks(stream)
-        val links = extractor(baseLink)
-
-        return links
+        return extractorFactory(stream)(baseLink)
     }
 
     companion object {
-        fun create(): ContentProcessor<Iterable<Link>> {
-            return AwesomeLinkExtractor()
+        fun create(
+                extractorFactory: (InputStream) -> (Link) -> Iterable<Link> =
+                { stream -> AwesomeParsers.extractAwesomeReadmeLinks(stream) }):
+                ContentProcessor<Iterable<Link>> {
+            return AwesomeLinkExtractor(extractorFactory)
         }
     }
 }

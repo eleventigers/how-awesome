@@ -43,7 +43,7 @@ sealed class DocumentDescription {
             return value.hashCode()
         }
 
-        override fun toString(): String{
+        override fun toString(): String {
             return "Links(value=$value)"
         }
     }
@@ -72,7 +72,7 @@ sealed class DocumentDescription {
             return value.hashCode()
         }
 
-        override fun toString(): String{
+        override fun toString(): String {
             return "LinkDescriptions(value=$value)"
         }
     }
@@ -101,7 +101,7 @@ sealed class DocumentDescription {
             return value.hashCode()
         }
 
-        override fun toString(): String{
+        override fun toString(): String {
             return "LinkRelationships(value=$value)"
         }
     }

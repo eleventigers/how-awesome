@@ -183,6 +183,10 @@ fun <T : Iterable<Link>> T.ofHost(host: Host): Iterable<Link.Identified> {
     }.map { it as Link.Identified }
 }
 
+fun <T : Iterable<Link>> T.identified(): Iterable<Link.Identified> {
+    return filter{ it is Link.Identified }.map { it as Link.Identified }
+}
+
 fun <T : Iterable<Link.Identified>> T.asOrphans(): Iterable<Link.Identified.Orphan> {
     return map { it.toOrphan() }
 }

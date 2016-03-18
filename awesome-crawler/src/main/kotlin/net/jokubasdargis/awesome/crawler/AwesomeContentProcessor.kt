@@ -1,6 +1,7 @@
 package net.jokubasdargis.awesome.crawler
 
 import net.jokubasdargis.awesome.core.ContentType
+import net.jokubasdargis.awesome.core.DocumentDescription
 import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.core.LinkDescription
 import net.jokubasdargis.awesome.core.Relationship
@@ -13,20 +14,24 @@ import net.jokubasdargis.awesome.core.ofHost
 import net.jokubasdargis.awesome.parser.AwesomeParsers
 import org.slf4j.LoggerFactory
 import java.io.InputStream
-import java.util.HashSet
+import java.util.ArrayList
+import java.util.LinkedHashSet
 
-internal class AwesomeContentProcessor private constructor() : ContentProcessor<Unit> {
+internal class AwesomeContentProcessor private constructor(
+        private val describerFactory: (InputStream) -> (Link) -> Iterable<DocumentDescription>) :
+        ContentProcessor<Iterable<AwesomeDocumentDescription>> {
 
     override fun supportedContentTypes(): Set<ContentType> {
         return setOf(ContentTypes.html())
     }
 
-    override fun invoke(stream: InputStream, baseLink: Link) {
+    override fun invoke(stream: InputStream, baseLink: Link):
+            Iterable<AwesomeDocumentDescription> {
         if (baseLink !is Link.Identified) {
-            return
+            return emptyList()
         }
 
-        val descriptions = AwesomeParsers.describeAwesomeReadme(stream)(baseLink)
+        val descriptions = describerFactory(stream)(baseLink)
 
         val allLinks = descriptions
                 .links()
@@ -44,26 +49,16 @@ internal class AwesomeContentProcessor private constructor() : ContentProcessor<
                 .linkRelationships()
                 .flatMap { it() }
 
-        val linkDescriptions = descriptions
-                .linkDescriptions()
-                .flatMap { it() }
-
-        val localToExternal = inRelationship(localLinks, relationships, false)
-        val localToLocal = inRelationship(localLinks, relationships, true)
-
-        val linksToKeep = localToExternal.plus(localToLocal)
-                .fold(HashSet<Link.Identified>()) { acc, rel ->
-                    acc.add(rel.from())
-                    acc.add(rel.to())
-                    acc
-                }
+        val linksToKeep = inRelationship(localLinks, relationships)
 
         val linkRelationshipsToKeep = relationships
                 .identified()
                 .asOrphans()
                 .filter { linksToKeep.contains(it.from()) }
 
-        val linkDescriptionsToKeep = linkDescriptions
+        val linkDescriptionsToKeep = descriptions
+                .linkDescriptions()
+                .flatMap { it() }
                 .filter { it !is LinkDescription.None }
                 .filter {
                     val link = it.link
@@ -74,7 +69,33 @@ internal class AwesomeContentProcessor private constructor() : ContentProcessor<
                     }
                 }
 
+        val results: MutableList<AwesomeDocumentDescription> = ArrayList()
+        if (linksToKeep.isNotEmpty()) {
+            results.add(AwesomeDocumentDescription.Links(baseLink, linksToKeep))
+        }
+        if (linkRelationshipsToKeep.isNotEmpty()) {
+            results.add(AwesomeDocumentDescription.LinkRelationships(baseLink,
+                    linkRelationshipsToKeep.toSet()))
+        }
+        if (linkDescriptionsToKeep.isNotEmpty()) {
+            results.add(AwesomeDocumentDescription.LinkDescriptions(baseLink,
+                    linkDescriptionsToKeep.toSet()))
+        }
+
         LOGGER.debug("Processed ${baseLink.canonicalize()}")
+
+        return results.asIterable()
+    }
+
+    private fun inRelationship(links: Iterable<Link>,
+                               relationships: Iterable<Relationship<Link>>): Set<Link.Identified> {
+        return inRelationship(links, relationships, false)
+                .plus(inRelationship(links, relationships, true))
+                .fold(LinkedHashSet<Link.Identified>()) { acc, rel ->
+                    acc.add(rel.from())
+                    acc.add(rel.to())
+                    acc
+                }
     }
 
     private fun inRelationship(links: Iterable<Link>,
@@ -87,7 +108,7 @@ internal class AwesomeContentProcessor private constructor() : ContentProcessor<
                     .filter {
                         it.from() == link && (contain == links.contains(it.to()))
                     }
-                }
+        }
     }
 
     companion object {
@@ -108,17 +129,6 @@ internal class AwesomeContentProcessor private constructor() : ContentProcessor<
             }
         }
 
-        private fun equalHierarchy(link: Link): (Link) -> Boolean {
-            return {
-                when (it) {
-                    is Link.Identified -> {
-                        it.equalHierarchy(link)
-                    }
-                    else -> false
-                }
-            }
-        }
-
         private fun equalRepo(repo: String?): (Link) -> Boolean {
             return {
                 when (it) {
@@ -130,8 +140,10 @@ internal class AwesomeContentProcessor private constructor() : ContentProcessor<
             }
         }
 
-        fun create(): ContentProcessor<Unit> {
-            return AwesomeContentProcessor()
+        fun create(describerFactory: (InputStream) -> (Link) -> Iterable<DocumentDescription> =
+                   { AwesomeParsers.describeAwesomeReadme(it) }):
+                ContentProcessor<Iterable<AwesomeDocumentDescription>> {
+            return AwesomeContentProcessor(describerFactory)
         }
     }
 }
