@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package net.jokubasdargis.awesome.transport;
+
+option java_package = "net.jokubasdargis.awesome.transport";
+option java_outer_classname = "OuterTransport";
+option java_multiple_files = true;
+
+
+message Link {
+    string url = 1;
+}
+
+message LinkRelationship {
+    Link from = 1;
+    Link to = 2;
+}
+
+message LinkDescriptionTitle {
+    Link link = 1;
+    string value = 2;
+}
+
+message LinkDescriptionSummary {
+    Link link = 1;
+    string value = 2;
+}

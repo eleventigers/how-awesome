@@ -28,5 +28,11 @@ class Functions {
                 value!!
             }
         }
+
+        fun <T, R> emptyLister(): (T) -> Iterable<R> {
+            return {
+                emptyList()
+            }
+        }
     }
 }

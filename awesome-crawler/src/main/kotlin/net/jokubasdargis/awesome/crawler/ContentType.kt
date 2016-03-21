@@ -1,4 +1,4 @@
-package net.jokubasdargis.awesome.core
+package net.jokubasdargis.awesome.crawler
 
 import java.util.Locale
 

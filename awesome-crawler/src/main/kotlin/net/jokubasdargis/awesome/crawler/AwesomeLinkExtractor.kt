@@ -1,6 +1,5 @@
 package net.jokubasdargis.awesome.crawler
 
-import net.jokubasdargis.awesome.core.ContentType
 import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.parser.AwesomeParsers
 import java.io.InputStream
@@ -24,7 +23,7 @@ internal class AwesomeLinkExtractor private constructor(
     companion object {
         fun create(
                 extractorFactory: (InputStream) -> (Link) -> Iterable<Link> =
-                { stream -> AwesomeParsers.extractAwesomeReadmeLinks(stream) }):
+                { stream -> AwesomeParsers.extractAwesomeLinks(stream) }):
                 ContentProcessor<Iterable<Link>> {
             return AwesomeLinkExtractor(extractorFactory)
         }

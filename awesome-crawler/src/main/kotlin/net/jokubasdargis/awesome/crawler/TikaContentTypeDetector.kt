@@ -1,6 +1,5 @@
 package net.jokubasdargis.awesome.crawler
 
-import net.jokubasdargis.awesome.core.ContentType
 import org.apache.tika.detect.DefaultDetector
 import org.apache.tika.detect.Detector
 import org.apache.tika.metadata.Metadata

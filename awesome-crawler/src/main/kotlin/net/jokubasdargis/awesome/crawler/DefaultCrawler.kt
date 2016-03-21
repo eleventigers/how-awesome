@@ -1,6 +1,5 @@
 package net.jokubasdargis.awesome.crawler
 
-import net.jokubasdargis.awesome.core.ContentType
 import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.util.MarkableInputStream
 import org.slf4j.LoggerFactory
@@ -91,7 +90,8 @@ internal class DefaultCrawler private constructor(
             val processors = setOf(
                     LinkFrontierAppendingContentProcessor
                             .create(AwesomeLinkExtractor.create(), linkFrontier, linkFilter),
-                    AwesomeContentProcessor.create())
+                    AwesomeContentProcessor.create()
+                            .withPersistor(AwesomeContentPersistor.create()))
             return create(linkFrontier, linkFetcher, processors)
         }
 

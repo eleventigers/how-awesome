@@ -1,7 +1,7 @@
 package net.jokubasdargis.awesome.crawler
 
 import com.google.common.truth.Truth.assertThat
-import net.jokubasdargis.awesome.core.ContentType
+import net.jokubasdargis.awesome.crawler.ContentType
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.math.BigInteger

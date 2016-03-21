@@ -19,6 +19,7 @@ dependencies {
 
 test.testClassesDir = project.tasks.compileTestKotlin.destinationDir
 
+
 kapt {
     generateStubs = true
 }

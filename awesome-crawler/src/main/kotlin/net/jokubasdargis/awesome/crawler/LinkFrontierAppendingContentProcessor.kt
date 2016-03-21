@@ -1,6 +1,5 @@
 package net.jokubasdargis.awesome.crawler
 
-import net.jokubasdargis.awesome.core.ContentType
 import net.jokubasdargis.awesome.core.Link
 import org.slf4j.LoggerFactory
 import java.io.InputStream

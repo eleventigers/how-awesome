@@ -8,52 +8,7 @@ import java.net.URI
 
 sealed class Link private constructor(val raw: String) {
 
-    sealed class Identified private constructor(protected val url: URL, raw: String) : Link(raw) {
-
-        fun toOrphan(): Orphan {
-            return when (this) {
-                is Orphan -> this
-                else -> Orphan(url, raw)
-            }
-        }
-
-        class Orphan(url: URL, raw: String) : Identified(url, raw) {
-
-            override fun toString(): String {
-                return "Orphan(url=$url)"
-            }
-        }
-
-        class Parented(url: URL, raw: String, val parent: Link) : Identified(url, raw) {
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-                if (other !is Parented) {
-                    return false
-                }
-                if (!super.equals(other)) {
-                    return false
-                }
-
-                if (parent != other.parent) {
-                    return false
-                }
-
-                return true
-            }
-
-            override fun hashCode(): Int {
-                var result = super.hashCode()
-                result += 31 * result + parent.hashCode()
-                return result
-            }
-
-            override fun toString(): String {
-                return "Parented(url=$url, parent=$parent)"
-            }
-        }
+    class Identified internal constructor(private val url: URL, raw: String) : Link(raw) {
 
         fun toUri(): URI {
             return url.toJavaURI()
@@ -61,6 +16,10 @@ sealed class Link private constructor(val raw: String) {
 
         fun toUrl(): java.net.URL {
             return url.toJavaURL()
+        }
+
+        fun path(): String? {
+            return url.path()
         }
 
         fun pathSegments(): List<String> {
@@ -100,6 +59,8 @@ sealed class Link private constructor(val raw: String) {
             return CANONICALIZER.canonicalize(url).toString()
         }
 
+
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -118,6 +79,10 @@ sealed class Link private constructor(val raw: String) {
         override fun hashCode(): Int {
             return url.hashCode()
         }
+
+        override fun toString(): String{
+            return "Identified(url=$url)"
+        }
     }
 
     class Invalid internal constructor(raw: String) : Link(raw) {
@@ -135,6 +100,10 @@ sealed class Link private constructor(val raw: String) {
         override fun hashCode(): Int {
             return 0
         }
+
+        override fun toString(): String{
+            return "Invalid(raw=$raw)"
+        }
     }
 
     companion object {
@@ -145,11 +114,7 @@ sealed class Link private constructor(val raw: String) {
         fun from(string: String, parent: Link? = null): Link {
             try {
                 val url = URL.fromJavaURI(resolve(URI(string), parent))
-                if (parent != null) {
-                    return Link.Identified.Parented(url, string, parent)
-                } else {
-                    return Link.Identified.Orphan(url, string)
-                }
+                return Link.Identified(url, string)
             } catch (e: Exception) {
                 return Link.Invalid(string)
             }
@@ -159,7 +124,7 @@ sealed class Link private constructor(val raw: String) {
             return if (uri.host != null) uri else {
                 when (parent) {
                     is Identified -> {
-                        //TODO(eleventigers, 14.03.16): resolve scheme relative (//path) uris
+                        //TODO(eleventigers, 14.03.16): resolve scheme relative (//host) uris
                         return parent.toUri().resolve(uri)
                     }
                     is Invalid -> {
@@ -183,10 +148,9 @@ fun <T : Iterable<Link>> T.ofHost(host: Host): Iterable<Link.Identified> {
     }.map { it as Link.Identified }
 }
 
-fun <T : Iterable<Link>> T.identified(): Iterable<Link.Identified> {
-    return filter{ it is Link.Identified }.map { it as Link.Identified }
-}
-
-fun <T : Iterable<Link.Identified>> T.asOrphans(): Iterable<Link.Identified.Orphan> {
-    return map { it.toOrphan() }
+@Suppress("UNCHECKED_CAST")
+fun <T : Iterable<Relationship<Link>>> T.identified():
+        Iterable<Relationship<Link.Identified>> {
+    return filter{ it.from() is Link.Identified && it.to() is Link.Identified }
+            .map { it as Relationship<Link.Identified> }
 }

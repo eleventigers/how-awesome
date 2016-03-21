@@ -1,43 +1,45 @@
 package net.jokubasdargis.awesome.parser
 
-import net.jokubasdargis.awesome.core.DocumentDescription
 import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.util.Functions
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
+import org.jsoup.nodes.Document
+import java.io.IOException
 import java.io.InputStream
 
 class AwesomeParsers private constructor() {
     companion object {
 
-        private const val ID_README = "readme"
-
-        private fun <R> noopParser(): (Link) -> Iterable<R> {
-            return {
-                emptyList()
-            }
-        }
-
-        private class ReadmeDocumentParser<R>(
+        private class SafeStreamDocumentParser<R>(
                 val stream: InputStream,
-                val factory: (Element) -> (Link) -> Iterable<R>) : (Link) -> Iterable<R> {
+                val factory: (Document) -> (Link) -> Iterable<R>) : (Link) -> Iterable<R> {
 
-            override fun invoke(link: Link): Iterable<R>  {
-                val document = Jsoup.parse(stream, Charsets.UTF_8.name(), "") // consumes the stream
-                val readme = document.getElementById(ID_README)?.clone()
-                val describer = if (readme != null) factory(readme) else noopParser<R>()
-                return describer.invoke(link)
+            override fun invoke(link: Link): Iterable<R> {
+                val document = run {
+                    try {
+                        Jsoup.parse(stream, Charsets.UTF_8.name(), "") // consumes the stream
+                    } catch (e: IOException) {
+                        return emptyList()
+                    }
+                }
+                return factory(document)(link)
             }
         }
 
-        fun describeAwesomeReadme(stream: InputStream): (Link) -> Iterable<DocumentDescription> {
-            return ReadmeDocumentParser(stream, { el ->
-                DefaultDocumentDescriber.create(el)
+        fun defineAwesomeDocument(stream: InputStream): (Link) -> Iterable<DocumentDefinition> {
+            return SafeStreamDocumentParser(stream, { doc ->
+                AwesomeDocumentDefiner.create(doc)
             })
         }
 
-        fun extractAwesomeReadmeLinks(stream: InputStream): (Link) -> Iterable<Link> {
-            return ReadmeDocumentParser(stream, { el ->
-                DefaultLinkExtractor.create(Html.links(el))
+        fun extractAwesomeLinks(stream: InputStream): (Link) -> Iterable<Link> {
+            return SafeStreamDocumentParser(stream, { doc ->
+                val readme = AwesomeDocuments.readme(doc)
+                if (readme != null) {
+                    DefaultLinkExtractor.create(Html.links(readme))
+                } else {
+                    Functions.emptyLister<Link, Link>()
+                }
             })
         }
     }

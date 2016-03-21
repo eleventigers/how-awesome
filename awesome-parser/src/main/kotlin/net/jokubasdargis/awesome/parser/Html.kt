@@ -8,7 +8,12 @@ import java.util.Locale
 internal class Html {
 
     internal enum class Attr(val value: String) {
-        HREF("href");
+        HREF("href"),
+        REL("rel"),
+        PROPERTY("property"),
+        CONTENT("content"),
+        ITEMPROP("itemprop"),
+        DATETIME("datetime");
     }
 
     internal enum class Tag(val value: String) {
@@ -20,7 +25,9 @@ internal class Html {
         H4("h4"),
         H5("h5"),
         H6("h6"),
-        P("p");
+        P("p"),
+        META("meta"),
+        TIME("time");
 
         fun apply(value: String?) : Boolean {
             return this.value.equals(value?.toLowerCase(Locale.ENGLISH))

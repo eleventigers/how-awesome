@@ -1,11 +1,9 @@
 package net.jokubasdargis.awesome.crawler
 
 import com.google.common.truth.Truth.assertThat
-import net.jokubasdargis.awesome.core.DocumentDescription
 import net.jokubasdargis.awesome.core.Link
-import net.jokubasdargis.awesome.core.LinkRelationship
-import net.jokubasdargis.awesome.core.asOrphans
-import net.jokubasdargis.awesome.core.identified
+import net.jokubasdargis.awesome.parser.DocumentDefinition
+import net.jokubasdargis.awesome.parser.LinkDefinition
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
@@ -21,9 +19,18 @@ class AwesomeContentProcessorTest {
         private val LINK_INVALID = Link.from("")
 
         open private class EmptyListDocumentDescriberFactory :
-                (InputStream) -> (Link) -> Iterable<DocumentDescription> {
-            override fun invoke(stream: InputStream): (Link) -> Iterable<DocumentDescription> {
+                (InputStream) -> (Link) -> Iterable<DocumentDefinition> {
+            override fun invoke(stream: InputStream): (Link) -> Iterable<DocumentDefinition> {
                 return { emptyList() }
+            }
+        }
+
+        open private class NoopAwesomeDocumentDescriptionPersistor :
+                (Iterable<DocumentDefinition>) -> Unit {
+            var called: Iterable<DocumentDefinition>? = null
+            //TODO(eleventigers, 18/03/16): figure out why spy fails and I need to use this hack
+            override fun invoke(descriptions: Iterable<DocumentDefinition>): Unit {
+                called = descriptions
             }
         }
     }
@@ -37,31 +44,41 @@ class AwesomeContentProcessorTest {
 
     @Test
     fun linksWithRelationships() {
-        val links = DocumentDescription.Links(listOf(LINK_A, LINK_B, LINK_C))
-        val relationships = DocumentDescription.LinkRelationships(listOf(
-                LinkRelationship(LINK_C, LINK_B),
-                LinkRelationship(LINK_C, LINK_A)
+        val links = DocumentDefinition.Links(LINK_A, setOf(LINK_A, LINK_B, LINK_C))
+        val linkDefinitions = DocumentDefinition.LinkDefinitions(LINK_A, setOf(
+                LinkDefinition.Relationship(LINK_C, LINK_B),
+                LinkDefinition.Relationship(LINK_C, LINK_A)
         ))
-        val descriptions: Iterable<DocumentDescription> = listOf(links, relationships)
+        val documentDefinitions: Iterable<DocumentDefinition> = listOf(links, linkDefinitions)
         val stream = mock(InputStream::class.java)
-        val sut = AwesomeContentProcessor.create { stream -> { link -> descriptions } }
+        val sut = AwesomeContentProcessor.create { stream -> { link -> documentDefinitions } }
         val result = sut(stream, LINK_A)
 
-        val expectedLinks = AwesomeDocumentDescription.Links(LINK_A, links.identified().toSet())
-        val expectedRelationships = AwesomeDocumentDescription
-                .LinkRelationships(LINK_A, relationships().identified().asOrphans().toSet())
+        val expectedLinks = DocumentDefinition.Links(LINK_A, links.identified().toSet())
+        val expectedLinkDefinitions = linkDefinitions
 
-        assertThat(result).containsExactly(expectedLinks, expectedRelationships)
+        assertThat(result).containsExactly(expectedLinks, expectedLinkDefinitions)
     }
 
     @Test fun invalidBaseLink() {
         val stream = mock(InputStream::class.java)
-        val factory = spy(EmptyListDocumentDescriberFactory())
+        val factory = `spy`(EmptyListDocumentDescriberFactory())
         val sut = AwesomeContentProcessor.create(factory)
 
         val result = sut(stream, LINK_INVALID)
 
         assertThat(result).isEmpty()
         verifyZeroInteractions(factory)
+    }
+
+    @Test fun withPersistor() {
+        val stream = mock(InputStream::class.java)
+        val persistor = NoopAwesomeDocumentDescriptionPersistor()
+        val sut = AwesomeContentProcessor.create().withPersistor(persistor)
+
+        val result = sut(stream, LINK_INVALID)
+
+        assertThat(result).isEmpty()
+        assertThat(persistor.called).isEqualTo(emptyList<DocumentDefinition>())
     }
 }

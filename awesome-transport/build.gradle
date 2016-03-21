@@ -1,0 +1,47 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath rootProject.ext.protoPlugin
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.google.protobuf'
+apply plugin: 'idea'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+dependencies {
+    compile rootProject.ext.proto
+}
+
+sourceSets.main.java.srcDirs += "$buildDir/generated/source/proto/main/java"
+
+protobuf {
+    protoc {
+        artifact = rootProject.ext.protoc
+    }
+}
+
+// Plain Java plugin does exclude everything in buildDir but we need generated files to be visible
+// More info: https://youtrack.jetbrains.com/issue/IDEA-117540
+idea {
+    module {
+        excludeDirs -= project.buildDir
+        project.buildDir
+                .listFiles({ d,f -> f != 'generated'} as FilenameFilter)
+                .each { excludeDirs += it }
+    }
+}
+
+jar {
+    sourceSets.all { sourceSet ->
+        from sourceSet.output
+        dependsOn sourceSet.getCompileTaskName('java')
+    }
+}

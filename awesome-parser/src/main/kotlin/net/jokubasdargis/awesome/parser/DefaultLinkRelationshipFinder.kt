@@ -1,7 +1,6 @@
 package net.jokubasdargis.awesome.parser
 
 import net.jokubasdargis.awesome.core.Link
-import net.jokubasdargis.awesome.core.LinkRelationship
 import net.jokubasdargis.awesome.core.Relationship
 import net.jokubasdargis.awesome.util.Functions
 import org.jsoup.nodes.Element
@@ -70,6 +69,44 @@ internal class DefaultLinkRelationshipFinder private constructor(
     }
 
     companion object {
+        private  class LinkRelationship(
+                private val from: Link, private val to: Link) : Relationship<Link> {
+
+            override fun from(): Link {
+                return from
+            }
+
+            override fun to(): Link {
+                return to
+            }
+
+            override fun toString(): String {
+                return "${from.raw} -> ${to.raw}"
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+                if (other !is LinkRelationship) {
+                    return false
+                }
+                if (from != other.from) {
+                    return false
+                }
+                if (to != other.to) {
+                    return false
+                }
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = from.hashCode()
+                result += 31 * result + to.hashCode()
+                return result
+            }
+        }
+
         fun create(linkElements: () -> List<Element>): (Link) -> List<Relationship<Link>> {
             return DefaultLinkRelationshipFinder(linkElements)
         }
