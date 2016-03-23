@@ -37,6 +37,7 @@ ext {
 
     kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     kotlinStdlib = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     protoPlugin = 'com.google.protobuf:protobuf-gradle-plugin:0.7.6'
 
     jsoup = 'org.jsoup:jsoup:1.8.3'
@@ -49,6 +50,7 @@ ext {
     tape = 'com.squareup:tape:1.2.3'
     proto = 'com.google.protobuf:protobuf-java:3.0.0-alpha-3'
     protoc = 'com.google.protobuf:protoc:3.0.0-alpha-3'
+    rabbitMqClient = 'com.rabbitmq:amqp-client:3.6.1'
 
     junit = 'junit:junit:4.12'
     truth = 'com.google.truth:truth:0.27'

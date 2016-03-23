@@ -1,10 +1,10 @@
 package net.jokubasdargis.awesome.parser
 
+import net.jokubasdargis.awesome.parser.DateFormatter
 import net.jokubasdargis.awesome.core.Link
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
-import java.text.DateFormat
 import java.text.Normalizer
 import java.text.NumberFormat
 import java.text.ParseException
@@ -161,7 +161,7 @@ internal class LinkDefinitionStrategies {
                     .firstOrNull()
 
                     if (time != null) {
-                        val date = DateFormatter.get().parse(time.attr(Html.Attr.DATETIME.value))
+                        val date = DateFormatter.iso8601().parse(time.attr(Html.Attr.DATETIME.value))
                         if (date != null) {
                             definition = LinkDefinition.LatestCommitDate(link, date)
                         }

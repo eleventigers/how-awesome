@@ -1,6 +1,6 @@
 package net.jokubasdargis.awesome.crawler
 
-internal sealed class Result<out T> {
+sealed class Result<out T> {
     class Success<T>(val value: T) : Result<T>() {
         override fun equals(other: Any?): Boolean {
             if (this === other) {

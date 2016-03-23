@@ -35,15 +35,19 @@ internal class DateFormatter private constructor(private val formats: List<DateF
 
         private class Holder {
             companion object {
-                val INSTANCE = create()
+                val INSTANCE_ISO_8601 = createIso8601()
             }
         }
 
-        fun get(): DateFormatter {
-            return Holder.INSTANCE
+        fun iso8601(): DateFormatter {
+            return Holder.INSTANCE_ISO_8601
         }
 
-        fun create(): DateFormatter {
+        fun default(): DateFormatter {
+            return iso8601()
+        }
+
+        fun createIso8601(): DateFormatter {
             val timeZone = TimeZone.getTimeZone("Zulu")
             val iso8601 = SimpleDateFormat(ISO_8601, Locale.ENGLISH)
             iso8601.timeZone = timeZone

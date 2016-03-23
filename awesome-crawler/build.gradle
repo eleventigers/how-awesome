@@ -16,12 +16,14 @@ dependencies {
     compile project(':awesome-transport')
 
     compile rootProject.ext.kotlinStdlib
+    compile rootProject.ext.kotlinReflect
     compile rootProject.ext.guava
     compile rootProject.ext.okhttp3
     compile rootProject.ext.okhttp3Logging
     compile rootProject.ext.logback
     compile rootProject.ext.tikaCore
     compile rootProject.ext.tape
+    compile rootProject.ext.rabbitMqClient
 
     testCompile rootProject.ext.junit
     testCompile rootProject.ext.truth
