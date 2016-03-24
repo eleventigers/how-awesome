@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.core.LinkDefinition
 import org.junit.Test
+import java.time.Instant
 
 class DocumentLinkDefinerIntegrationTest : BaseIntegrationTest() {
 
@@ -21,7 +22,7 @@ class DocumentLinkDefinerIntegrationTest : BaseIntegrationTest() {
                 is LinkDefinition.StarsCount -> assertThat(it()).isEqualTo(31488)
                 is LinkDefinition.ForksCount -> assertThat(it()).isEqualTo(3338)
                 is LinkDefinition.LatestCommitDate -> assertThat(it())
-                        .isEqualTo(DateFormatter.iso8601().parse("2016-03-10T13:27:28Z"))
+                        .isEqualTo(Instant.parse("2016-03-10T13:27:28Z"))
             }
         }
     }
@@ -41,7 +42,7 @@ class DocumentLinkDefinerIntegrationTest : BaseIntegrationTest() {
                 is LinkDefinition.StarsCount -> assertThat(it()).isEqualTo(4336)
                 is LinkDefinition.ForksCount -> assertThat(it()).isEqualTo(352)
                 is LinkDefinition.LatestCommitDate -> assertThat(it())
-                        .isEqualTo(DateFormatter.iso8601().parse("2016-03-17T01:40:41Z"))
+                        .isEqualTo(Instant.parse("2016-03-17T01:40:41Z"))
             }
         }
     }
@@ -61,7 +62,7 @@ class DocumentLinkDefinerIntegrationTest : BaseIntegrationTest() {
                 is LinkDefinition.StarsCount -> assertThat(it()).isEqualTo(207)
                 is LinkDefinition.ForksCount -> assertThat(it()).isEqualTo(13)
                 is LinkDefinition.LatestCommitDate -> assertThat(it())
-                        .isEqualTo(DateFormatter.iso8601().parse("2016-03-09T13:00:07Z"))
+                        .isEqualTo(Instant.parse("2016-03-09T13:00:07Z"))
             }
         }
     }

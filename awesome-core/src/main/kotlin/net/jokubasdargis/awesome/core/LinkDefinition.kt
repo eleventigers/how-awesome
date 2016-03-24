@@ -1,5 +1,6 @@
 package net.jokubasdargis.awesome.core
 
+import java.time.Instant
 import java.util.Date
 
 sealed class LinkDefinition(val link: Link)  {
@@ -179,9 +180,10 @@ sealed class LinkDefinition(val link: Link)  {
         }
     }
 
-    class LatestCommitDate(link: Link, private val value: Date): LinkDefinition(link), () -> Date {
+    class LatestCommitDate(link: Link, private val value: Instant):
+            LinkDefinition(link), () -> Instant {
 
-        override fun invoke(): Date {
+        override fun invoke(): Instant {
             return value
         }
 

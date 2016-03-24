@@ -8,6 +8,7 @@ import org.jsoup.nodes.TextNode
 import java.text.Normalizer
 import java.text.NumberFormat
 import java.text.ParseException
+import java.time.Instant
 import java.util.Locale
 
 internal class LinkDefinitionStrategies {
@@ -161,7 +162,7 @@ internal class LinkDefinitionStrategies {
                     .firstOrNull()
 
                     if (time != null) {
-                        val date = DateFormatter.iso8601().parse(time.attr(Html.Attr.DATETIME.value))
+                        val date = Instant.parse(time.attr(Html.Attr.DATETIME.value))
                         if (date != null) {
                             definition = LinkDefinition.LatestCommitDate(link, date)
                         }

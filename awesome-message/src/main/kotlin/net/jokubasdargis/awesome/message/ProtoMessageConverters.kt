@@ -11,7 +11,7 @@ import net.jokubasdargis.awesome.transport.LinkDefinitionStarsCount
 import net.jokubasdargis.awesome.transport.LinkDefinitionTitle
 import java.io.IOException
 import java.io.OutputStream
-import java.util.Date
+import java.time.Instant
 
 internal class ProtoMessageConverters private constructor() {
     companion object {
@@ -269,7 +269,7 @@ internal class ProtoMessageConverters private constructor() {
                 try {
                     val proto = LinkDefinitionLatestCommitDate
                             .parseFrom(bytes)
-                    val date = Date(proto.value)
+                    val date = Instant.ofEpochMilli(proto.value)
                     return Result.Success(
                             LinkDefinition.LatestCommitDate(Link.from(proto.link.url), date))
                 } catch (e: Exception) {
@@ -290,7 +290,7 @@ internal class ProtoMessageConverters private constructor() {
                         val protoDef = LinkDefinitionLatestCommitDate
                                 .newBuilder()
                                 .setLink(protoLink)
-                                .setValue(o().time)
+                                .setValue(o().toEpochMilli())
                                 .build()
 
                         protoDef.writeTo(stream)
