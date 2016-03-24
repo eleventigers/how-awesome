@@ -1,5 +1,6 @@
-package net.jokubasdargis.awesome.crawler
+package net.jokubasdargis.awesome.message
 
+import net.jokubasdargis.awesome.core.Result
 import java.io.OutputStream
 
 interface MessageConverter<T> {

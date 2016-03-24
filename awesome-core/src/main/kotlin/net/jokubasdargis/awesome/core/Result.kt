@@ -1,4 +1,4 @@
-package net.jokubasdargis.awesome.crawler
+package net.jokubasdargis.awesome.core
 
 sealed class Result<out T> {
     class Success<T>(val value: T) : Result<T>() {

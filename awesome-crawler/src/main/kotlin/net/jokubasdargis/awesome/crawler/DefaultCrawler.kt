@@ -1,6 +1,9 @@
 package net.jokubasdargis.awesome.crawler
 
 import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.Result
+import net.jokubasdargis.awesome.message.MessageRouter
+import net.jokubasdargis.awesome.message.MessageRouters
 import net.jokubasdargis.awesome.util.MarkableInputStream
 import org.slf4j.LoggerFactory
 import java.io.InputStream
@@ -82,7 +85,8 @@ internal class DefaultCrawler private constructor(
         private val AWESOME_ROOT = Link.from("https://github.com/sindresorhus/awesome")
 
         fun forAwesome(linkFrontier: LinkFrontier,
-                       linkFetcher: (Link) -> Result<LinkResponse>): Iterable<CrawlStats> {
+                       linkFetcher: (Link) -> Result<LinkResponse>,
+                       messageRouter: MessageRouter = MessageRouters.noop()): Iterable<CrawlStats> {
             val linkFilter = LinkFilters.combined(
                     LinkFilters.of(Hosts.github()),
                     LinkFilters.of(ContentTypes.html(), ContentTypes.octetStream()),
@@ -91,7 +95,7 @@ internal class DefaultCrawler private constructor(
                     LinkFrontierAppendingContentProcessor
                             .create(AwesomeLinkExtractor.create(), linkFrontier, linkFilter),
                     AwesomeContentProcessor.create()
-                            .withPersistor(AwesomeContentPersistor.create()))
+                            .withPersistor(AwesomeContentPersistor.create(messageRouter)))
             return create(linkFrontier, linkFetcher, processors)
         }
 

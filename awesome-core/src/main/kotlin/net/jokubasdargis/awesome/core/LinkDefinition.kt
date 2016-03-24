@@ -1,6 +1,5 @@
-package net.jokubasdargis.awesome.parser
+package net.jokubasdargis.awesome.core
 
-import net.jokubasdargis.awesome.core.Link
 import java.util.Date
 
 sealed class LinkDefinition(val link: Link)  {

@@ -1,7 +1,4 @@
-package net.jokubasdargis.awesome.parser
-
-import net.jokubasdargis.awesome.core.Host
-import net.jokubasdargis.awesome.core.Link
+package net.jokubasdargis.awesome.core
 
 sealed class DocumentDefinition(val documentLink: Link) {
 

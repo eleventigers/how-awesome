@@ -1,4 +1,4 @@
-package net.jokubasdargis.awesome.crawler
+package net.jokubasdargis.awesome.message
 
 import java.io.Closeable
 

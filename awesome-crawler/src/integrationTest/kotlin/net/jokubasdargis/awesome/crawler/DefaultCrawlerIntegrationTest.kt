@@ -1,6 +1,7 @@
 package net.jokubasdargis.awesome.crawler
 
 import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.Result
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder

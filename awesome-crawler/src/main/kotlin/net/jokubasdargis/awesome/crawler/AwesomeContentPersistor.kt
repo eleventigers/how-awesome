@@ -1,7 +1,9 @@
 package net.jokubasdargis.awesome.crawler
 
 import net.jokubasdargis.awesome.core.Link
-import net.jokubasdargis.awesome.parser.DocumentDefinition
+import net.jokubasdargis.awesome.core.DocumentDefinition
+import net.jokubasdargis.awesome.message.MessageRouter
+import net.jokubasdargis.awesome.message.routeFor
 
 internal class AwesomeContentPersistor private constructor(
         private val messageRouter: MessageRouter) : (Iterable<DocumentDefinition>) -> Unit {
@@ -24,8 +26,7 @@ internal class AwesomeContentPersistor private constructor(
     }
 
     companion object {
-        fun create(messageRouter: MessageRouter = MessageRouters.noop()):
-                (Iterable<DocumentDefinition>) -> Unit {
+        fun create(messageRouter: MessageRouter): (Iterable<DocumentDefinition>) -> Unit {
             return AwesomeContentPersistor(messageRouter)
         }
     }

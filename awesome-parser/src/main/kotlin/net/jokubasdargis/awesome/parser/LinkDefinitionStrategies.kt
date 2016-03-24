@@ -1,7 +1,7 @@
 package net.jokubasdargis.awesome.parser
 
-import net.jokubasdargis.awesome.parser.DateFormatter
 import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.LinkDefinition
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode

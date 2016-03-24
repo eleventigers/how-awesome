@@ -1,8 +1,8 @@
 package net.jokubasdargis.awesome.parser
 
 import com.google.common.truth.Truth.assertThat
-import net.jokubasdargis.awesome.parser.DateFormatter
 import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.LinkDefinition
 import org.junit.Test
 
 class DocumentLinkDefinerIntegrationTest : BaseIntegrationTest() {

@@ -1,4 +1,4 @@
-package net.jokubasdargis.awesome.crawler
+package net.jokubasdargis.awesome.message
 
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -9,7 +9,7 @@ internal class LazyMessageRouter private constructor(
 
     private val lazyQueues = ConcurrentHashMap<KClass<*>, Lazy<MessageQueue<*>>>()
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "USELESS_CAST")
     private fun <T : Any> queue(kClass: KClass<T>): MessageQueue<T>? {
         synchronized(lazyQueues) {
             val lazyQueue = lazyQueues[kClass as KClass<Any>]

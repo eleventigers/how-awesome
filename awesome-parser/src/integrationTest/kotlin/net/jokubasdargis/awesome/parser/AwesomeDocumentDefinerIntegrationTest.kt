@@ -1,10 +1,10 @@
 package net.jokubasdargis.awesome.parser
 
 import com.google.common.truth.Truth.assertThat
+import net.jokubasdargis.awesome.core.DocumentDefinition
 import net.jokubasdargis.awesome.core.Host
 import net.jokubasdargis.awesome.core.Link
 import org.junit.Test
-
 
 class AwesomeDocumentDefinerIntegrationTest : BaseIntegrationTest() {
 

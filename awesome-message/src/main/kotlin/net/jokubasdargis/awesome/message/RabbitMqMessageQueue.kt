@@ -1,13 +1,16 @@
-package net.jokubasdargis.awesome.crawler
+package net.jokubasdargis.awesome.message
 
 import com.rabbitmq.client.AMQP
 import com.rabbitmq.client.Channel
 import com.rabbitmq.client.Connection
 import com.rabbitmq.client.DefaultConsumer
 import com.rabbitmq.client.Envelope
+import com.rabbitmq.client.MessageProperties
+import net.jokubasdargis.awesome.core.Result
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.util.Date
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicReference
 
@@ -62,8 +65,9 @@ internal class RabbitMqMessageQueue<T> private constructor(
         when (converted) {
             is Result.Success -> {
                 try {
-                    channel.value.basicPublish(
-                            exchangeName, routingKey, null, stream.toByteArray())
+                    channel.value.basicPublish(exchangeName, routingKey,
+                            MessageProperties.PERSISTENT_BASIC.builder().timestamp(Date()).build(),
+                            stream.toByteArray())
                     return true
                 } catch (e: IOException) {
                     LOGGER.error("Failed to send $value: ${e.cause}")

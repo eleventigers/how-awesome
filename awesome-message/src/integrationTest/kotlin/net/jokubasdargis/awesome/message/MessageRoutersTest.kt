@@ -1,12 +1,14 @@
-package net.jokubasdargis.awesome.crawler
+package net.jokubasdargis.awesome.message
 
 import com.google.common.truth.Truth.assertThat
 import net.jokubasdargis.awesome.core.Link
-import net.jokubasdargis.awesome.parser.LinkDefinition
+import net.jokubasdargis.awesome.core.LinkDefinition
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Test
 import java.util.UUID
 
+@Ignore("depends on a running RabbitMQ broker")
 class MessageRoutersTest {
 
     private val sut = MessageRouters.awesome()
@@ -47,6 +49,14 @@ class MessageRoutersTest {
         val added = queue.add(Any())
 
         assertThat(added).isFalse()
+    }
+
+    @Test fun receive() {
+        val links = sut.routeFor<Link>()
+
+        links.forEach {
+            println(it)
+        }
     }
 
     @After fun tearDown() {

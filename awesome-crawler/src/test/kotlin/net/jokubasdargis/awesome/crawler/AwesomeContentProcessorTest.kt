@@ -2,8 +2,8 @@ package net.jokubasdargis.awesome.crawler
 
 import com.google.common.truth.Truth.assertThat
 import net.jokubasdargis.awesome.core.Link
-import net.jokubasdargis.awesome.parser.DocumentDefinition
-import net.jokubasdargis.awesome.parser.LinkDefinition
+import net.jokubasdargis.awesome.core.DocumentDefinition
+import net.jokubasdargis.awesome.core.LinkDefinition
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy

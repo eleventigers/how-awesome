@@ -1,6 +1,7 @@
 package net.jokubasdargis.awesome.crawler
 
 import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.Result
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor

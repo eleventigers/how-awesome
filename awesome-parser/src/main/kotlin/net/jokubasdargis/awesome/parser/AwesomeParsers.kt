@@ -1,5 +1,6 @@
 package net.jokubasdargis.awesome.parser
 
+import net.jokubasdargis.awesome.core.DocumentDefinition
 import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.util.Functions
 import org.jsoup.Jsoup

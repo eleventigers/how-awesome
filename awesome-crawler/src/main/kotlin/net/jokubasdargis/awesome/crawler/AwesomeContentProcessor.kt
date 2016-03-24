@@ -5,10 +5,10 @@ import net.jokubasdargis.awesome.core.Relationship
 import net.jokubasdargis.awesome.core.identified
 import net.jokubasdargis.awesome.core.ofHost
 import net.jokubasdargis.awesome.parser.AwesomeParsers
-import net.jokubasdargis.awesome.parser.DocumentDefinition
-import net.jokubasdargis.awesome.parser.LinkDefinition
-import net.jokubasdargis.awesome.parser.linkDefinitions
-import net.jokubasdargis.awesome.parser.links
+import net.jokubasdargis.awesome.core.DocumentDefinition
+import net.jokubasdargis.awesome.core.LinkDefinition
+import net.jokubasdargis.awesome.core.linkDefinitions
+import net.jokubasdargis.awesome.core.links
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.util.ArrayList

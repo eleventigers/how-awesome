@@ -1,14 +1,14 @@
-package net.jokubasdargis.awesome.crawler
-
+package net.jokubasdargis.awesome.message
 
 import com.google.common.truth.Truth.assertThat
 import com.rabbitmq.client.ConnectionFactory
 import net.jokubasdargis.awesome.core.Link
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Test
 import java.util.UUID
 
-
+@Ignore("depends on a running RabbitMQ broker")
 class RabbitMqMessageQueueTest {
 
     companion object {

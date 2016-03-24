@@ -1,7 +1,14 @@
-package net.jokubasdargis.awesome.crawler
+package net.jokubasdargis.awesome.message
 
 import net.jokubasdargis.awesome.core.Link
-import net.jokubasdargis.awesome.parser.LinkDefinition
+import net.jokubasdargis.awesome.core.LinkDefinition
+import net.jokubasdargis.awesome.core.Result
+import net.jokubasdargis.awesome.transport.LinkDefinitionDescription
+import net.jokubasdargis.awesome.transport.LinkDefinitionForksCount
+import net.jokubasdargis.awesome.transport.LinkDefinitionLatestCommitDate
+import net.jokubasdargis.awesome.transport.LinkDefinitionRelationship
+import net.jokubasdargis.awesome.transport.LinkDefinitionStarsCount
+import net.jokubasdargis.awesome.transport.LinkDefinitionTitle
 import java.io.IOException
 import java.io.OutputStream
 import java.util.Date
@@ -47,7 +54,7 @@ internal class ProtoMessageConverters private constructor() {
 
             override fun from(bytes: ByteArray): Result<LinkDefinition.Relationship> {
                 try {
-                    val proto = net.jokubasdargis.awesome.transport.LinkDefinitionRelationship
+                    val proto = LinkDefinitionRelationship
                             .parseFrom(bytes)
                     return Result.Success(
                             LinkDefinition.Relationship(
@@ -73,7 +80,7 @@ internal class ProtoMessageConverters private constructor() {
                                 .setUrl(to.toUrl().toString())
                                 .build()
 
-                        val protoDef = net.jokubasdargis.awesome.transport.LinkDefinitionRelationship
+                        val protoDef = LinkDefinitionRelationship
                                 .newBuilder()
                                 .setFrom(protoLinkFrom)
                                 .setTo(protoLinkTo)
@@ -95,7 +102,7 @@ internal class ProtoMessageConverters private constructor() {
 
             override fun from(bytes: ByteArray): Result<LinkDefinition.Title> {
                 try {
-                    val proto = net.jokubasdargis.awesome.transport.LinkDefinitionTitle
+                    val proto = LinkDefinitionTitle
                             .parseFrom(bytes)
                     return Result.Success(
                             LinkDefinition.Title(Link.from(proto.link.url), proto.value))
@@ -113,7 +120,7 @@ internal class ProtoMessageConverters private constructor() {
                                 .setUrl(link.toUrl().toString())
                                 .build()
 
-                        val protoDef = net.jokubasdargis.awesome.transport.LinkDefinitionTitle
+                        val protoDef = LinkDefinitionTitle
                                 .newBuilder()
                                 .setLink(protoLink)
                                 .setValue(o())
@@ -136,7 +143,7 @@ internal class ProtoMessageConverters private constructor() {
 
             override fun from(bytes: ByteArray): Result<LinkDefinition.Description> {
                 try {
-                    val proto = net.jokubasdargis.awesome.transport.LinkDefinitionDescription
+                    val proto = LinkDefinitionDescription
                             .parseFrom(bytes)
                     return Result.Success(
                             LinkDefinition.Description(Link.from(proto.link.url), proto.value))
@@ -155,7 +162,7 @@ internal class ProtoMessageConverters private constructor() {
                                 .setUrl(link.toUrl().toString())
                                 .build()
 
-                        val protoDef = net.jokubasdargis.awesome.transport.LinkDefinitionDescription
+                        val protoDef = LinkDefinitionDescription
                                 .newBuilder()
                                 .setLink(protoLink)
                                 .setValue(o())
@@ -178,7 +185,7 @@ internal class ProtoMessageConverters private constructor() {
 
             override fun from(bytes: ByteArray): Result<LinkDefinition.StarsCount> {
                 try {
-                    val proto = net.jokubasdargis.awesome.transport.LinkDefinitionStarsCount
+                    val proto = LinkDefinitionStarsCount
                             .parseFrom(bytes)
                     return Result.Success(
                             LinkDefinition.StarsCount(Link.from(proto.link.url), proto.value))
@@ -196,7 +203,7 @@ internal class ProtoMessageConverters private constructor() {
                                 .setUrl(link.toUrl().toString())
                                 .build()
 
-                        val protoDef = net.jokubasdargis.awesome.transport.LinkDefinitionStarsCount
+                        val protoDef = LinkDefinitionStarsCount
                                 .newBuilder()
                                 .setLink(protoLink)
                                 .setValue(o())
@@ -219,7 +226,7 @@ internal class ProtoMessageConverters private constructor() {
 
             override fun from(bytes: ByteArray): Result<LinkDefinition.ForksCount> {
                 try {
-                    val proto = net.jokubasdargis.awesome.transport.LinkDefinitionForksCount
+                    val proto = LinkDefinitionForksCount
                             .parseFrom(bytes)
                     return Result.Success(
                             LinkDefinition.ForksCount(Link.from(proto.link.url), proto.value))
@@ -237,7 +244,7 @@ internal class ProtoMessageConverters private constructor() {
                                 .setUrl(link.toUrl().toString())
                                 .build()
 
-                        val protoDef = net.jokubasdargis.awesome.transport.LinkDefinitionForksCount
+                        val protoDef = LinkDefinitionForksCount
                                 .newBuilder()
                                 .setLink(protoLink)
                                 .setValue(o())
@@ -260,7 +267,7 @@ internal class ProtoMessageConverters private constructor() {
 
             override fun from(bytes: ByteArray): Result<LinkDefinition.LatestCommitDate> {
                 try {
-                    val proto = net.jokubasdargis.awesome.transport.LinkDefinitionLatestCommitDate
+                    val proto = LinkDefinitionLatestCommitDate
                             .parseFrom(bytes)
                     val date = Date(proto.value)
                     return Result.Success(
@@ -280,8 +287,7 @@ internal class ProtoMessageConverters private constructor() {
                                 .setUrl(link.toUrl().toString())
                                 .build()
 
-                        val protoDef = net.jokubasdargis.awesome.transport
-                                .LinkDefinitionLatestCommitDate
+                        val protoDef = LinkDefinitionLatestCommitDate
                                 .newBuilder()
                                 .setLink(protoLink)
                                 .setValue(o().time)
