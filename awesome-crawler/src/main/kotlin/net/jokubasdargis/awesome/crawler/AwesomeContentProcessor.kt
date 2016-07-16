@@ -85,7 +85,7 @@ internal class AwesomeContentProcessor private constructor(
             results.add(DocumentDefinition.LinkDefinitions(baseLink, linkDefinitionsToKeep.toSet()))
         }
 
-        LOGGER.debug("Processed ${baseLink.canonicalize()}")
+        LOGGER.info("Processed ${baseLink.canonicalize()}")
 
         return results.asIterable()
     }

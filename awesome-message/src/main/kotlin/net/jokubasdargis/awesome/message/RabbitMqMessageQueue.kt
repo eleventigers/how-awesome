@@ -11,18 +11,20 @@ import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.Date
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.BlockingDeque
+import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicReference
 
-internal class RabbitMqMessageQueue<T> private constructor(
+class RabbitMqMessageQueue<T> private constructor(
         private val connection: Connection,
         private val exchangeName: String,
         private val routingKey: String,
-        private val converter: MessageConverter<T>) : MessageQueue<T> {
-
-    private val incoming = LinkedBlockingQueue<Pair<Long, T>>()
+        private val converter: MessageConverter<T>,
+        private val buffer: BlockingDeque<Pair<Long, T>>) : MessageQueue<T> {
 
     private val queueName = AtomicReference<String>()
+    private val consumerLock = Semaphore(1)
 
     private val channel: Lazy<Channel> = lazy(LazyThreadSafetyMode.SYNCHRONIZED, {
         val ch = connection.createChannel()
@@ -47,7 +49,7 @@ internal class RabbitMqMessageQueue<T> private constructor(
                     val converted = converter.from(body)
                     when (converted) {
                         is Result.Success -> {
-                            incoming.offer(Pair(deliveryTag, converted.value))
+                            buffer.putFirst(Pair(deliveryTag, converted.value))
                         }
                         is Result.Failure -> {
                             LOGGER.error("Failed to convert bytes to value: ${converted.error}")
@@ -55,6 +57,7 @@ internal class RabbitMqMessageQueue<T> private constructor(
                         }
                     }
                 }
+                consumerLock.release()
             }
         })
     }
@@ -68,6 +71,7 @@ internal class RabbitMqMessageQueue<T> private constructor(
                     channel.value.basicPublish(exchangeName, routingKey,
                             MessageProperties.PERSISTENT_BASIC.builder().timestamp(Date()).build(),
                             stream.toByteArray())
+                    consumerLock.acquire()
                     return true
                 } catch (e: IOException) {
                     LOGGER.error("Failed to send $value: ${e.cause}")
@@ -81,19 +85,26 @@ internal class RabbitMqMessageQueue<T> private constructor(
         }
     }
 
-    override fun iterator(): MutableIterator<T> {
-        return object : AbstractIterator<T>(), MutableIterator<T> {
-            override fun computeNext() {
-                val parcel = incoming.take()
-                if (ack(parcel.first)) {
-                    setNext(parcel.second)
-                }
-            }
+    override fun peek(): T? {
+        synchronized(buffer) {
+            val parcel = buffer.takeLast()
+            val value = parcel.second
+            buffer.putLast(parcel)
+            return value
+        }
+    }
 
-            override fun remove() {
-                next()
+    override fun remove() {
+        synchronized(buffer) {
+            val parcel = buffer.takeLast()
+            if (ack(parcel.first)) {
+                buffer.remove(parcel)
             }
         }
+    }
+
+    override fun isEmpty(): Boolean {
+        return size == 0L
     }
 
     private fun ack(tag: Long): Boolean {
@@ -121,7 +132,7 @@ internal class RabbitMqMessageQueue<T> private constructor(
                 channel.value.close()
             }
         } catch(e: IOException) {
-            LOGGER.error("Failure while closing channel: $e")
+            LOGGER.error("Failure while closing channel: ${e.cause}")
         }
     }
 
@@ -131,7 +142,8 @@ internal class RabbitMqMessageQueue<T> private constructor(
 
         fun <T> create(connection: Connection, exchangeName: String = "", // default exchange
                        routingKey: String, converter: MessageConverter<T>): MessageQueue<T> {
-            return RabbitMqMessageQueue(connection, exchangeName, routingKey, converter)
+            return RabbitMqMessageQueue(
+                    connection, exchangeName, routingKey, converter, LinkedBlockingDeque())
         }
     }
 }

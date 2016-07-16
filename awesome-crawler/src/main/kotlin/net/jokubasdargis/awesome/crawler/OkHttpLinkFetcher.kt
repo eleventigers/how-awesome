@@ -7,7 +7,7 @@ import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import org.slf4j.LoggerFactory
 
-internal class OkHttpLinkFetcher private constructor(
+class OkHttpLinkFetcher private constructor(
         private val client: OkHttpClient) : (Link) -> Result<LinkResponse> {
 
     override fun invoke(link: Link): Result<LinkResponse> {
@@ -29,8 +29,8 @@ internal class OkHttpLinkFetcher private constructor(
     companion object {
         private val LOGGER = LoggerFactory.getLogger(OkHttpLinkFetcher::class.java)
 
-        fun create(): (Link) -> Result<LinkResponse> {
-            val logging = HttpLoggingInterceptor({ LOGGER.debug(it) })
+        @JvmStatic fun create(): (Link) -> Result<LinkResponse> {
+            val logging = HttpLoggingInterceptor({ LOGGER.info(it) })
                     .setLevel(HttpLoggingInterceptor.Level.BASIC)
             val client = OkHttpClient.Builder()
                     .addInterceptor(logging)
@@ -38,7 +38,7 @@ internal class OkHttpLinkFetcher private constructor(
             return create(client)
         }
 
-        fun create(client: OkHttpClient): (Link) -> Result<LinkResponse> {
+        @JvmStatic fun create(client: OkHttpClient): (Link) -> Result<LinkResponse> {
             return OkHttpLinkFetcher(client)
         }
     }

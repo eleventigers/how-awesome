@@ -10,7 +10,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class DefaultCrawlerIntegrationTest : BaseIntegrationTest() {
+class CrawlersIntegrationTest : BaseIntegrationTest() {
 
     companion object {
         private val LINK_AWESOME = Link.from("https://github.com/sindresorhus/awesome")
@@ -24,15 +24,15 @@ class DefaultCrawlerIntegrationTest : BaseIntegrationTest() {
         linkFrontier.add(LINK_AWESOME)
 
         val count = 1
-
         val executor = Executors.newFixedThreadPool(count)
 
         val tasks: List<Callable<Unit>> = 0.rangeTo(count).map {
             Callable<kotlin.Unit> {
-                val crawler = DefaultCrawler.forAwesome(linkFrontier, fetcher)
+                val crawler = Crawlers.newAwesomeCrawler(linkFrontier, fetcher)
                 val iterator = crawler.iterator()
                 while (true) {
                     iterator.next()
+                    iterator.remove()
                 }
             }
         }
@@ -51,10 +51,11 @@ class DefaultCrawlerIntegrationTest : BaseIntegrationTest() {
 
         val tasks: List<Callable<Unit>> = 0.rangeTo(count).map {
             Callable<kotlin.Unit> {
-                val crawler = DefaultCrawler.forAwesome(linkFrontier, fetcher)
+                val crawler = Crawlers.newAwesomeCrawler(linkFrontier, fetcher)
                 val iterator = crawler.iterator()
                 while (true) {
                     iterator.next()
+                    iterator.remove()
                 }
             }
         }
@@ -69,10 +70,11 @@ class DefaultCrawlerIntegrationTest : BaseIntegrationTest() {
         val fetcher: (Link) -> Result<LinkResponse> = {
             Result.Success(LinkResponse(documentStream("awesome.html"), -1))
         }
-        val sut = DefaultCrawler.forAwesome(linkFrontier, fetcher)
+        val sut = Crawlers.newAwesomeCrawler(linkFrontier, fetcher)
+        val iterator = sut.iterator()
 
-        sut.forEach {
-            //ignored
+        iterator.forEach {
+            iterator.remove()
         }
     }
 }

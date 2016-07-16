@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 class MessageRouters private constructor() {
     companion object {
 
-        private val EXCHANGE_CRAWLER = "net.jokubasdargis.awesome.crawler"
+        private val EXCHANGE_AWESOME = "net.jokubasdargis.awesome"
         private val KEY_LINK = "link"
         private val KEY_LINK_RELATIONSHIP = "$KEY_LINK.relationship"
         private val KEY_LINK_TITLE = "$KEY_LINK.title"
@@ -33,44 +33,43 @@ class MessageRouters private constructor() {
             }
         }
 
-        fun awesome(uri: URI? = null): MessageRouter {
+        @JvmStatic @JvmOverloads fun awesome(uri: URI? = null): MessageRouter {
             val connection = let {
                 val factory = ConnectionFactory()
                 if (uri != null) {
                     factory.setUri(uri)
                 }
                 factory.isAutomaticRecoveryEnabled = true
-                //TODO(eleventigers, 24/03/16): handle exceptions when connecting
                 factory.newConnection()
             }
 
             val link = Pair(Link::class, {
-                RabbitMqMessageQueue.create(connection, EXCHANGE_CRAWLER, KEY_LINK,
+                RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK,
                         ProtoMessageConverters.Companion.link())
             })
             val linkDefRelationship = Pair(LinkDefinition.Relationship::class, {
-                RabbitMqMessageQueue.create(connection, EXCHANGE_CRAWLER, KEY_LINK_RELATIONSHIP,
+                RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK_RELATIONSHIP,
                         ProtoMessageConverters.Companion.linkDefinitionRelationship())
             })
             val linkDefTitle = Pair(LinkDefinition.Title::class, {
-                RabbitMqMessageQueue.create(connection, EXCHANGE_CRAWLER, KEY_LINK_TITLE,
+                RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK_TITLE,
                         ProtoMessageConverters.Companion.linkDefinitionTitle())
             })
             val linkDefDescription = Pair(LinkDefinition.Description::class, {
-                RabbitMqMessageQueue.create(connection, EXCHANGE_CRAWLER, KEY_LINK_DESCRIPTION,
+                RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK_DESCRIPTION,
                         ProtoMessageConverters.Companion.linkDefinitionDescription())
             })
             val linkDefStarsCount = Pair(LinkDefinition.StarsCount::class, {
-                RabbitMqMessageQueue.create(connection, EXCHANGE_CRAWLER, KEY_LINK_STARS_COUNT,
+                RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK_STARS_COUNT,
                         ProtoMessageConverters.Companion.linkDefinitionStarsCount())
             })
             val linkDefForksCount = Pair(LinkDefinition.ForksCount::class, {
-                RabbitMqMessageQueue.create(connection, EXCHANGE_CRAWLER, KEY_LINK_FORKS_COUNT,
+                RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK_FORKS_COUNT,
                         ProtoMessageConverters.Companion.linkDefinitionForksCount())
             })
             val linkDefLatestCommitDate = Pair(LinkDefinition.LatestCommitDate::class, {
                 RabbitMqMessageQueue.create(connection,
-                        EXCHANGE_CRAWLER, KEY_LINK_LATEST_COMMIT_DATE,
+                        EXCHANGE_AWESOME, KEY_LINK_LATEST_COMMIT_DATE,
                         ProtoMessageConverters.Companion.linkDefinitionLatestCommitDate())
             })
 
@@ -79,7 +78,7 @@ class MessageRouters private constructor() {
                     linkDefStarsCount, linkDefForksCount, linkDefLatestCommitDate)), connection)
         }
 
-        fun noop(): MessageRouter {
+        @JvmStatic fun noop(): MessageRouter {
             return LazyMessageRouter.create(emptyMap())
         }
     }

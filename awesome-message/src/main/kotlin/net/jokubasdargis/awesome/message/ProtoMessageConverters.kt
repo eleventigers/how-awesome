@@ -13,7 +13,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.time.Instant
 
-internal class ProtoMessageConverters private constructor() {
+class ProtoMessageConverters private constructor() {
     companion object {
 
         //TODO(eleventigers, 23/03/16): handle null url Link conversions

@@ -116,6 +116,7 @@ sealed class Link private constructor(val raw: String) {
                 val url = URL.fromJavaURI(resolve(URI(string), parent))
                 return Link.Identified(url, string)
             } catch (e: Exception) {
+                //TODO(eleventigers, 16/07/2016): log parse failures
                 return Link.Invalid(string)
             }
         }

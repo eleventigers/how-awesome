@@ -36,11 +36,11 @@ class MessageRoutersTest {
         linkQueue.add(link)
         linkDefTitleQueue.add(linkDefTitle)
 
-        val removedLink = linkQueue.iterator().next()
-        val removedLinkDefTitle = linkDefTitleQueue.iterator().next()
+        val peekedLink = linkQueue.peek()
+        val peekedLinkDefTitle = linkDefTitleQueue.peek()
 
-        assertThat(removedLink).isEqualTo(link)
-        assertThat(removedLinkDefTitle).isEqualTo(linkDefTitle)
+        assertThat(peekedLink).isEqualTo(link)
+        assertThat(peekedLinkDefTitle).isEqualTo(linkDefTitle)
     }
 
     @Test fun routeAny() {
@@ -54,8 +54,9 @@ class MessageRoutersTest {
     @Test fun receive() {
         val links = sut.routeFor<Link>()
 
-        links.forEach {
-            println(it)
+        while (!links.isEmpty()) {
+            println(links.peek())
+            links.remove()
         }
     }
 

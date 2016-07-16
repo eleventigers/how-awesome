@@ -42,32 +42,32 @@ class FileQueueLinkFrontierTest {
     }
 
     @Test
-    fun hasNext() {
+    fun isEmpty() {
         val file = File(temporaryFolder.root, FILENAME_FRONTIER)
         val sut = FileQueueLinkFrontier.create(file)
 
         sut.add(LINK_A)
-        val afterAdd = sut.hasNext()
-        sut.next()
-        val afterNext = sut.hasNext()
+        val afterAdd = sut.isEmpty()
+        sut.remove()
+        val afterRemove = sut.isEmpty()
 
-        assertThat(afterAdd).isTrue()
-        assertThat(afterNext).isFalse()
+        assertThat(afterAdd).isFalse()
+        assertThat(afterRemove).isTrue()
     }
 
     @Test
-    fun next() {
+    fun peek() {
         val file = File(temporaryFolder.root, FILENAME_FRONTIER)
         val sut = FileQueueLinkFrontier.create(file)
 
         sut.add(LINK_A)
-        val next = sut.next()
+        val peeked = sut.peek()
 
-        assertThat(next).isEqualTo(LINK_A)
+        assertThat(peeked).isEqualTo(LINK_A)
     }
 
     @Test
-    fun multipleAddThenNext() {
+    fun multipleAddThenPeekRemove() {
         val file = File(temporaryFolder.root, FILENAME_FRONTIER)
         val sut = FileQueueLinkFrontier.create(file)
 
@@ -76,17 +76,22 @@ class FileQueueLinkFrontierTest {
         sut.add(LINK_A)
         sut.add(LINK_A)
 
-        assertThat(sut.next()).isEqualTo(LINK_A)
-        assertThat(sut.next()).isEqualTo(LINK_B)
-        assertThat(sut.next()).isEqualTo(LINK_A)
-        assertThat(sut.next()).isEqualTo(LINK_A)
+        assertThat(sut.peek()).isEqualTo(LINK_A)
+        sut.remove()
+        assertThat(sut.peek()).isEqualTo(LINK_B)
+        sut.remove()
+        assertThat(sut.peek()).isEqualTo(LINK_A)
+        sut.remove()
+        assertThat(sut.peek()).isEqualTo(LINK_A)
+        sut.remove()
     }
 
-    @Test(expected = NoSuchElementException::class)
-    fun nextWhenHasNextIsFalse() {
+    @Test
+    fun peekWhenIsEmpty() {
         val file = File(temporaryFolder.root, FILENAME_FRONTIER)
         val sut = FileQueueLinkFrontier.create(file)
 
-        sut.next()
+        val peeked = sut.peek()
+        assertThat(peeked).isNull()
     }
 }

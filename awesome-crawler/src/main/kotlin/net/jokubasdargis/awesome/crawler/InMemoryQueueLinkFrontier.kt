@@ -1,11 +1,11 @@
 package net.jokubasdargis.awesome.crawler
 
 import net.jokubasdargis.awesome.core.Link
-import java.util.concurrent.BlockingQueue
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.BlockingDeque
+import java.util.concurrent.LinkedBlockingDeque
 
 internal class InMemoryQueueLinkFrontier private constructor(
-        private val queue: BlockingQueue<Link>) : LinkFrontier {
+        private val queue: BlockingDeque<Link>) : LinkFrontier {
 
     override fun add(link: Link): Boolean {
         if (link !is Link.Identified) {
@@ -15,24 +15,36 @@ internal class InMemoryQueueLinkFrontier private constructor(
         return true
     }
 
-    override fun next(): Link {
-        return queue.take()
+    override fun remove() {
+        queue.remove()
     }
 
-    override fun hasNext(): Boolean {
-        return !queue.isEmpty()
+    override fun peek(): Link? {
+        synchronized(queue) {
+            val link = queue.takeFirst()
+            queue.putFirst(link)
+            return link
+        }
     }
 
-    override fun toString(): String{
+    override fun isEmpty(): Boolean {
+        return queue.isEmpty()
+    }
+
+    override fun toString(): String {
         return "DefaultLinkFrontier(size=$size, remainingCapacity=${queue.remainingCapacity()})"
     }
 
     override val size: Int
         get() = queue.size
 
+    override fun close() {
+        // no-op
+    }
+
     companion object {
         fun create(capacity: Int = 1048576): LinkFrontier {
-            return InMemoryQueueLinkFrontier(LinkedBlockingQueue(capacity))
+            return InMemoryQueueLinkFrontier(LinkedBlockingDeque(capacity))
         }
     }
 }

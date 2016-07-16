@@ -2,8 +2,6 @@ package net.jokubasdargis.awesome.crawler
 
 import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.core.Result
-import net.jokubasdargis.awesome.message.MessageRouter
-import net.jokubasdargis.awesome.message.MessageRouters
 import net.jokubasdargis.awesome.util.MarkableInputStream
 import org.slf4j.LoggerFactory
 import java.io.InputStream
@@ -14,13 +12,17 @@ internal class DefaultCrawler private constructor(
         private val linkFetcher: (Link) -> Result<LinkResponse>,
         private val contentProcessors: Iterable<ContentProcessor<*>>,
         private val contentTypeDetector: (InputStream?, String?) -> ContentType?,
-        private val contentFilter: (InputStream) -> Boolean) : Iterable<CrawlStats> {
+        private val contentFilter: (InputStream) -> Boolean) : Crawler {
 
-    override fun iterator(): Iterator<CrawlStats> {
-        return object : Iterator<CrawlStats> {
+    override fun iterator(): MutableIterator<CrawlStats> {
+        return object : MutableIterator<CrawlStats> {
 
             override fun hasNext(): Boolean {
-                return linkFrontier.hasNext()
+                return !linkFrontier.isEmpty()
+            }
+
+            override fun remove() {
+               linkFrontier.remove()
             }
 
             override fun next(): CrawlStats {
@@ -31,7 +33,7 @@ internal class DefaultCrawler private constructor(
             }
 
             private fun crawl(): CrawlStatus {
-                val link = linkFrontier.next()
+                val link = linkFrontier.peek()
                 if (link !is Link.Identified) {
                     return CrawlStatus.Failure(CrawlException("Link is not identified: $link"))
                 }
@@ -47,7 +49,7 @@ internal class DefaultCrawler private constructor(
                         markStream.reset(mark)
                         if (accept) {
                             val contentType = contentTypeDetector(markStream, link.canonicalize())
-                            LOGGER.debug("Detected content type as '$contentType' for " +
+                            LOGGER.info("Detected content type as '$contentType' for " +
                                     "${link.canonicalize()}")
                             val supported = if (contentType != null) contentProcessors
                                     .filter {
@@ -82,22 +84,6 @@ internal class DefaultCrawler private constructor(
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(DefaultCrawler::class.java)
-        private val AWESOME_ROOT = Link.from("https://github.com/sindresorhus/awesome")
-
-        fun forAwesome(linkFrontier: LinkFrontier,
-                       linkFetcher: (Link) -> Result<LinkResponse>,
-                       messageRouter: MessageRouter = MessageRouters.noop()): Iterable<CrawlStats> {
-            val linkFilter = LinkFilters.combined(
-                    LinkFilters.of(Hosts.github()),
-                    LinkFilters.of(ContentTypes.html(), ContentTypes.octetStream()),
-                    LinkFilters.lru(AWESOME_ROOT))
-            val processors = setOf(
-                    LinkFrontierAppendingContentProcessor
-                            .create(AwesomeLinkExtractor.create(), linkFrontier, linkFilter),
-                    AwesomeContentProcessor.create()
-                            .withPersistor(AwesomeContentPersistor.create(messageRouter)))
-            return create(linkFrontier, linkFetcher, processors)
-        }
 
         fun create(linkFrontier: LinkFrontier,
                    linkFetcher: (Link) -> Result<LinkResponse>,
@@ -105,7 +91,7 @@ internal class DefaultCrawler private constructor(
                    contentTypeDetector: (InputStream?, String?) -> ContentType? =
                    TikaContentTypeDetector.get(),
                    contentFilter: (InputStream) -> Boolean = FingerPrintContentFilter.get()):
-                Iterable<CrawlStats> {
+                Crawler {
             return DefaultCrawler(linkFrontier, linkFetcher, contentProcessors,
                     contentTypeDetector, contentFilter)
         }

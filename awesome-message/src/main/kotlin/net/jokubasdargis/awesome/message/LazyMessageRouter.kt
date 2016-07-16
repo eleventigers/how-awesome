@@ -46,20 +46,18 @@ internal class LazyMessageRouter private constructor(
                         0
                     }
 
-                override fun iterator(): MutableIterator<T> {
-                    return object : MutableIterator<T> {
-                        override fun hasNext(): Boolean {
-                            return false
-                        }
+                override fun peek(): T? {
+                    warn()
+                    return null
+                }
 
-                        override fun next(): T {
-                            throw UnsupportedOperationException()
-                        }
+                override fun remove() {
+                    warn()
+                }
 
-                        override fun remove() {
-                            throw UnsupportedOperationException()
-                        }
-                    }
+                override fun isEmpty(): Boolean {
+                    warn()
+                    return true
                 }
 
                 override fun close() {

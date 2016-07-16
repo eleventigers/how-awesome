@@ -28,7 +28,7 @@ internal class LinkFrontierAppendingContentProcessor(
                     .filter(linkFilter)
                     .map { linkFrontier.add(it) }
 
-            LOGGER.debug("Added ${accepted.size}/$count links to the $linkFrontier")
+            LOGGER.info("Added ${accepted.size}/$count links to the $linkFrontier")
         }
     }
 

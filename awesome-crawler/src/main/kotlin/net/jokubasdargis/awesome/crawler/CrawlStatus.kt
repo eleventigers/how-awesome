@@ -1,6 +1,6 @@
 package net.jokubasdargis.awesome.crawler
 
-internal sealed class CrawlStatus {
+sealed class CrawlStatus {
     class Success(): CrawlStatus() {
         override fun toString(): String{
             return "Success()"

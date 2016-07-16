@@ -1,0 +1,157 @@
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'idea'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+mainClassName = 'net.jokubasdargis.awesome.crawler.service.CrawlerApplication'
+
+configurations {
+    capsule
+    provided
+}
+
+sourceSets {
+    main.compileClasspath = main.compileClasspath + configurations.provided
+    test.compileClasspath = test.compileClasspath + configurations.provided
+    test.runtimeClasspath = test.runtimeClasspath + configurations.provided
+}
+
+dependencies {
+    compile project(':awesome-crawler')
+
+    compile rootProject.ext.dropwizardCore
+    provided rootProject.ext.capsuleMain
+    capsule rootProject.ext.capsuleMain
+
+    testCompile rootProject.ext.junit
+    testCompile rootProject.ext.truth
+    testCompile rootProject.ext.mockito
+}
+
+
+
+tasks.withType(JavaExec) {
+    standardInput = System.in
+
+    jvmArgs '-server'
+    // memory
+    jvmArgs '-Xmx1024m'
+}
+
+apply plugin: 'maven'
+
+task writePom << {
+    pom {
+        project {
+            groupId group
+            artifactId POM_ARTIFACT_ID
+            version version
+        }
+    }.writeTo("$buildDir/pom.xml")
+}
+
+// creates a "thin" capsule with the dependencies listen in an embedded POM, rather than the manifest
+task pomCapsule(type: Jar, dependsOn: [writePom, classes]) {
+    archiveName = "${POM_ARTIFACT_ID}-POM-THIN.jar"
+
+    from sourceSets.main.output // this way we don't need to extract the capsule
+    from "$buildDir/pom.xml"
+    from { configurations.capsule.collect { zipTree(it) } }
+
+    manifest {
+        attributes('Main-Class': 'Capsule',
+                'Application-Class': mainClassName,
+                'Extract-Capsule': 'false',
+                'Min-Java-Version': '1.8.0',
+                'JVM-Args': run.jvmArgs.join(' '),
+                'System-Properties': run.systemProperties.collect { k, v -> "$k=$v" }.join(' '))
+    }
+}
+
+// converts Gradle dependencies into Capsule dependencies
+def getDependencies(config) {
+    return config.getAllDependencies().collect {
+        def res = it.group + ':' +
+                it.name +
+                ':' +
+                it.version +
+                (!it.artifacts.isEmpty() ? ':' + it.artifacts.iterator().next().classifier : '')
+        if (!it.excludeRules.isEmpty()) {
+            res += "(" + it.excludeRules.collect { it.group + ':' + it.module }.join(',') + ")"
+        }
+        return res
+    }
+}
+
+// creates a "thin" capsule, with the dependencies listen in the manifest
+task capsule(type: Jar, dependsOn: classes) {
+    archiveName = "${POM_ARTIFACT_ID}-MANIFEST-THIN.jar"
+
+    from sourceSets.main.output // this way we don't need to extract
+    from { configurations.capsule.collect { zipTree(it) } }
+
+    manifest {
+        attributes('Main-Class': 'Capsule',
+                'Application-Class': mainClassName,
+                'Extract-Capsule': 'true',
+                'Min-Java-Version': '1.8.0',
+                // 'Args' :     'hello world',
+                'JVM-Args': run.jvmArgs.join(' '),
+                'System-Properties': run.systemProperties.collect { k, v -> "$k=$v" }.join(' '),
+                'Dependencies': getDependencies(configurations.runtime).join(' '))
+    }
+}
+
+// creates a "fat" capsule, with all dependencies embedded in the capsule
+task fatCapsule(type: Jar, dependsOn: jar) {
+    archiveName = "${POM_ARTIFACT_ID}-STANDALONE.jar"
+
+    from(configurations.capsule.collect { zipTree(it) }) { include 'Capsule.class' }
+    // we just need the single Capsule class
+    // from(zipTree(jar.archivePath)) { include 'MyCapsule.class' } // - if we want a custom capsule
+
+    from jar // embed our application jar
+    from { configurations.runtime } // embed dependencies
+
+    manifest {
+        attributes('Main-Class': 'Capsule', // 'MyCapsule', // - if we want a custom capsule
+                'Application-Class': mainClassName,
+                'Min-Java-Version': '1.8.0',
+                'JVM-Args': run.jvmArgs.join(' '),
+                'System-Properties': run.systemProperties.collect { k, v -> "$k=$v" }.join(' '))
+    }
+}
+
+tasks.withType(Jar) {
+    doLast { task -> reallyExecutable(task) }
+}
+
+def reallyExecutable(jar) {
+    ant.concat(destfile: "tmp.jar", binary: true) {
+        zipentry(zipfile: configurations.capsule.singleFile,
+                name: 'capsule/trampoline-execheader.sh')
+        fileset(dir: jar.destinationDir) {
+            include(name: jar.archiveName)
+        }
+    }
+    copy {
+        from 'tmp.jar'
+        into jar.destinationDir
+        rename { jar.archiveName }
+    }
+    delete 'tmp.jar'
+}
+
+run {
+    args "server", "development.yml"
+}
+
+artifacts {
+    archives capsule
+}
+
+install.dependsOn capsule

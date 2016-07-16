@@ -20,21 +20,25 @@ class InMemoryLinkFrontierTest {
         assertThat(result).isTrue()
     }
 
-    @Test fun addRemove() {
+    @Test fun addPeek() {
         sut.add(LINK_A)
 
-        assertThat(sut.next()).isEqualTo(LINK_A)
+        assertThat(sut.peek()).isEqualTo(LINK_A)
     }
 
-    @Test fun multipleAddThenNext() {
+    @Test fun multipleAddThenPeekRemove() {
         sut.add(LINK_A)
         sut.add(LINK_B)
         sut.add(LINK_B)
         sut.add(LINK_A)
 
-        assertThat(sut.next()).isEqualTo(LINK_A)
-        assertThat(sut.next()).isEqualTo(LINK_B)
-        assertThat(sut.next()).isEqualTo(LINK_B)
-        assertThat(sut.next()).isEqualTo(LINK_A)
+        assertThat(sut.peek()).isEqualTo(LINK_A)
+        sut.remove()
+        assertThat(sut.peek()).isEqualTo(LINK_B)
+        sut.remove()
+        assertThat(sut.peek()).isEqualTo(LINK_B)
+        sut.remove()
+        assertThat(sut.peek()).isEqualTo(LINK_A)
+        sut.remove()
     }
 }

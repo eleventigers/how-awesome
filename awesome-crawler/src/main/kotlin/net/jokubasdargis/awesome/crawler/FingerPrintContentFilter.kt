@@ -17,7 +17,7 @@ internal class FingerPrintContentFilter private constructor(
         val result = hasher(stream)
         val duration = System.currentTimeMillis() - start
 
-        LOGGER.debug("Content of ${result.first} bytes fingerprinted in ${duration}ms")
+        LOGGER.info("Content of ${result.first} bytes fingerprinted in ${duration}ms")
 
         synchronized(hashes) {
             if (hashes.contains(result.second)) {

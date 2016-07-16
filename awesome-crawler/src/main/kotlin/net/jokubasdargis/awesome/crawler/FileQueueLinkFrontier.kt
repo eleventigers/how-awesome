@@ -4,7 +4,6 @@ import com.squareup.tape.FileObjectQueue
 import net.jokubasdargis.awesome.core.Link
 import java.io.File
 import java.io.OutputStream
-import java.util.NoSuchElementException
 
 internal class FileQueueLinkFrontier private constructor(
         val queue: FileObjectQueue<Link>) : LinkFrontier {
@@ -24,24 +23,24 @@ internal class FileQueueLinkFrontier private constructor(
     override val size: Int
         get() = queue.size()
 
-    override fun hasNext(): Boolean {
-        return size > 0
+    override fun isEmpty(): Boolean {
+        return size <= 0
     }
 
-    override fun next(): Link {
-        val link = queue.peek()
-        if (link != null) {
-            queue.remove()
-            return link
-        } else {
-            // TODO(eleventigers, 18/03/16): block instead of throwing
-            throw NoSuchElementException(
-                    "Queue is empty, ensure #hasNext() returns true before calling #next()")
-        }
+    override fun remove() {
+        queue.remove()
     }
 
-    override fun toString(): String{
+    override fun peek(): Link? {
+        return queue.peek()
+    }
+
+    override fun toString(): String {
         return "FileQueueLinkFrontier(size=$size)"
+    }
+
+    override fun close() {
+        queue.close()
     }
 
     companion object {

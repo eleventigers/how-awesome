@@ -7,6 +7,7 @@ import org.junit.After
 import org.junit.Ignore
 import org.junit.Test
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 
 @Ignore("depends on a running RabbitMQ broker")
 class RabbitMqMessageQueueTest {
@@ -25,28 +26,32 @@ class RabbitMqMessageQueueTest {
         conn.close()
     }
 
-    @Test fun addRemove() {
+    @Test fun addPeek() {
         val link = createLink()
         val added = sut.add(link)
-        val removed = sut.iterator().next()
+        val peeked = sut.peek()
 
         assertThat(added).isTrue()
-        assertThat(link).isEqualTo(removed)
+        assertThat(link).isEqualTo(peeked)
     }
 
-    @Test fun multipleAddRemove() {
+    @Test fun multipleAddPeekRemove() {
         val count = 100
         val links = (1..count).map { createLink() }
 
         links.forEach { sut.add(it) }
         val removed = (1..count).map {
-            sut.iterator().next()
+            val v = sut.peek()
+            sut.remove()
+            v
         }
 
         assertThat(links).containsExactlyElementsIn(removed)
     }
 
+    private val counter = AtomicInteger()
+
     private fun createLink(): Link {
-        return Link.from("https://google.com?q=${UUID.randomUUID()}")
+        return Link.from("https://google.com?q=${counter.andIncrement}")
     }
 }
