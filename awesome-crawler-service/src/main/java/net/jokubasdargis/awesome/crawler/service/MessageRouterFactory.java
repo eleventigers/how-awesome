@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 
-public final class MessageRouterFactory {
+final class MessageRouterFactory {
 
     @NotNull
     private URI uri;
@@ -27,7 +27,7 @@ public final class MessageRouterFactory {
         this.uri = uri;
     }
 
-    public MessageRouter build(Environment environment) {
+    MessageRouter build(Environment environment) {
         MessageRouter messageRouter = MessageRouters.awesome(uri);
         environment.lifecycle().manage(new Managed() {
             @Override

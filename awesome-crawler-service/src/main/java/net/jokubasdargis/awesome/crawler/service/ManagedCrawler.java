@@ -18,7 +18,7 @@ import static java.util.Objects.requireNonNull;
 
 final class ManagedCrawler implements Managed {
 
-    public static ManagedCrawler create(CrawlerFactory crawlerFactory,
+    static ManagedCrawler create(CrawlerFactory crawlerFactory,
                                         ScheduledExecutorService executorService) {
         return new ManagedCrawler(crawlerFactory, executorService);
     }

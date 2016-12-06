@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.setup.Environment;
 
-public final class LinkFrontierFactory {
+final class LinkFrontierFactory {
 
     @NotNull
     private File file;
@@ -27,7 +27,7 @@ public final class LinkFrontierFactory {
         this.file = file;
     }
 
-    public LinkFrontier build(Environment environment) {
+    LinkFrontier build(Environment environment) {
         LinkFrontier linkFrontier = LinkFrontiers.newFileQueueLinkFrontier(file);
         environment.lifecycle().manage(new Managed() {
             @Override

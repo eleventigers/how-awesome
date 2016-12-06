@@ -9,7 +9,7 @@ import io.dropwizard.Configuration;
 
 import static java.util.Objects.requireNonNull;
 
-public final class CrawlerConfiguration extends Configuration {
+final class CrawlerConfiguration extends Configuration {
 
     @Valid
     @NotNull
