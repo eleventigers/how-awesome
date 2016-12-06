@@ -35,7 +35,7 @@ final class ManagedCrawler implements Managed {
 
     @Override
     public void start() throws Exception {
-        executorService.scheduleAtFixedRate((Runnable) () -> {
+        executorService.scheduleAtFixedRate(() -> {
             ScheduledFuture<List<CrawlStats>> job = executorService.schedule(
                     createCrawlTask(), 0, TimeUnit.SECONDS);
 
@@ -45,7 +45,7 @@ final class ManagedCrawler implements Managed {
 
     @Override
     public void stop() throws Exception {
-
+        // We expect the executorService to be managed from outside, no need to shut it down here.
     }
 
     @SuppressWarnings("WhileLoopReplaceableByForEach")
