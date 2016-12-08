@@ -5,6 +5,11 @@ import com.google.common.collect.ImmutableList;
 import net.jokubasdargis.awesome.crawler.CrawlStats;
 import net.jokubasdargis.awesome.crawler.Crawler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -19,18 +24,29 @@ import static java.util.Objects.requireNonNull;
 final class ManagedCrawler implements Managed {
 
     static ManagedCrawler create(CrawlerFactory crawlerFactory,
-                                        ScheduledExecutorService executorService) {
-        return new ManagedCrawler(crawlerFactory, executorService);
+                                 ScheduledExecutorService executorService) {
+        return create(crawlerFactory, executorService, DEFAULT_CRAWL_STEP_DELAY);
     }
 
+    static ManagedCrawler create(CrawlerFactory crawlerFactory,
+                                 ScheduledExecutorService executorService,
+                                 Duration crawlStepDelay) {
+        return new ManagedCrawler(crawlerFactory, executorService, crawlStepDelay);
+    }
+
+    private static final Duration DEFAULT_CRAWL_STEP_DELAY = Duration.of(1, ChronoUnit.SECONDS);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCrawler.class);
 
     private final CrawlerFactory crawlerFactory;
     private final ScheduledExecutorService executorService;
+    private final Duration crawlStepDelay;
 
     private ManagedCrawler(CrawlerFactory crawlerFactory,
-                           ScheduledExecutorService executorService) {
+                           ScheduledExecutorService executorService,
+                           Duration crawlStepDelay) {
         this.crawlerFactory = requireNonNull(crawlerFactory);
         this.executorService = requireNonNull(executorService);
+        this.crawlStepDelay = requireNonNull(crawlStepDelay);
     }
 
     @Override
@@ -38,9 +54,8 @@ final class ManagedCrawler implements Managed {
         executorService.scheduleAtFixedRate(() -> {
             ScheduledFuture<List<CrawlStats>> job = executorService.schedule(
                     createCrawlTask(), 0, TimeUnit.SECONDS);
-
-            executorService.schedule((Runnable) () -> job.cancel(true), 1, TimeUnit.MINUTES);
-        }, 0, 5, TimeUnit.MINUTES);
+            executorService.schedule(() -> job.cancel(true), 30, TimeUnit.SECONDS);
+        }, 0, 1, TimeUnit.MINUTES);
     }
 
     @Override
@@ -51,19 +66,24 @@ final class ManagedCrawler implements Managed {
     @SuppressWarnings("WhileLoopReplaceableByForEach")
     private Callable<List<CrawlStats>> createCrawlTask() {
         return () -> {
+            LOGGER.info("Crawler task start");
             Crawler crawler = crawlerFactory.create();
             ImmutableList.Builder<CrawlStats> builder = ImmutableList.builder();
             Iterator<CrawlStats> iterator = crawler.iterator();
-            while (iterator.hasNext()) {
-                if (Thread.interrupted()) {
-                    throw new InterruptedException();
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    if (iterator.hasNext()) {
+                        CrawlStats stats = iterator.next();
+                        if (!stats.isSuccess()) {
+                            // TODO(eleventigers, 24/03/16): handle crawl fail
+                        }
+                        iterator.remove();
+                        builder.add(stats);
+                    }
+                    TimeUnit.MILLISECONDS.sleep(crawlStepDelay.toMillis());
                 }
-                CrawlStats stats = iterator.next();
-                if (!stats.isSuccess()) {
-                    // TODO(eleventigers, 24/03/16): handle crawl fail
-                }
-                iterator.remove();
-                builder.add(stats);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
             return builder.build();
         };

@@ -1,0 +1,13 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: ${DW_SERVER_APP_PORT:-80}
+  adminConnectors:
+    - type: http
+      port: ${DW_SERVER_ADMIN_PORT:-8081}
+
+logging:
+  level: INFO
+
+messageRouter:
+  uri: ${DW_AMQP_URI:-amqp://guest:guest@localhost:5672}

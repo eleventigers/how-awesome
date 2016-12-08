@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.Date
 import java.util.concurrent.BlockingDeque
+import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicReference
@@ -21,7 +22,7 @@ class RabbitMqMessageQueue<T> private constructor(
         private val exchangeName: String,
         private val routingKey: String,
         private val converter: MessageConverter<T>,
-        private val buffer: BlockingDeque<Pair<Long, T>>) : MessageQueue<T> {
+        private val innerQueue: BlockingQueue<Pair<Long, T>>) : MessageQueue<T> {
 
     private val queueName = AtomicReference<String>()
     private val consumerLock = Semaphore(1)
@@ -49,7 +50,7 @@ class RabbitMqMessageQueue<T> private constructor(
                     val converted = converter.from(body)
                     when (converted) {
                         is Result.Success -> {
-                            buffer.putFirst(Pair(deliveryTag, converted.value))
+                            innerQueue.put(Pair(deliveryTag, converted.value))
                         }
                         is Result.Failure -> {
                             LOGGER.error("Failed to convert bytes to value: ${converted.error}")
@@ -86,19 +87,20 @@ class RabbitMqMessageQueue<T> private constructor(
     }
 
     override fun peek(): T? {
-        synchronized(buffer) {
-            val parcel = buffer.takeLast()
-            val value = parcel.second
-            buffer.putLast(parcel)
-            return value
+        synchronized(innerQueue) {
+            val parcel = innerQueue.peek()
+            if (parcel != null) {
+                return parcel.second
+            }
+            return null
         }
     }
 
     override fun remove() {
-        synchronized(buffer) {
-            val parcel = buffer.takeLast()
+        synchronized(innerQueue) {
+            val parcel = innerQueue.peek()
             if (ack(parcel.first)) {
-                buffer.remove(parcel)
+                innerQueue.remove(parcel)
             }
         }
     }
