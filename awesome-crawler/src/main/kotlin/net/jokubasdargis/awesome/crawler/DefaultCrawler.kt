@@ -22,7 +22,7 @@ internal class DefaultCrawler private constructor(
             }
 
             override fun remove() {
-               linkFrontier.remove()
+                linkFrontier.remove()
             }
 
             override fun next(): CrawlStats {
@@ -50,7 +50,7 @@ internal class DefaultCrawler private constructor(
                         if (accept) {
                             val contentType = contentTypeDetector(markStream, link.canonicalize())
                             LOGGER.info("Detected content type as '$contentType' for " +
-                                    "${link.canonicalize()}")
+                                    link.canonicalize())
                             val supported = if (contentType != null) contentProcessors
                                     .filter {
                                         it.supportedContentTypes().contains(contentType)
@@ -74,8 +74,8 @@ internal class DefaultCrawler private constructor(
                     return CrawlStatus.Success()
                 } else {
                     LOGGER.warn("Failed to fetch ${link.canonicalize()}, error: $result")
-                    val cause = if (result is Result.Failure) result.error else
-                        Throwable("Unexpected link fetcher result")
+                    val cause = (result as? Result.Failure)
+                            ?.error ?: Throwable("Unexpected link fetcher result")
                     return CrawlStatus.Failure(CrawlException(cause))
                 }
             }

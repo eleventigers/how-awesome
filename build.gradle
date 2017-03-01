@@ -37,7 +37,7 @@ task wrapper(type: Wrapper) {
 }
 
 ext {
-    kotlinVersion = '1.0.4'
+    kotlinVersion = '1.0.5-3'
     okhttp3Version = '3.2.0'
     dropwizardVersion = '1.0.0-rc1'
 

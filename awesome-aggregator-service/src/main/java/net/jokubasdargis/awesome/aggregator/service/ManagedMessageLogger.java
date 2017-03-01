@@ -56,7 +56,7 @@ final class ManagedMessageLogger implements Managed {
 
     }
 
-    private <T> Runnable createLogTask(MessageQueue<T> queue, Logger logger) {
+    private static <T> Runnable createLogTask(MessageQueue<T> queue, Logger logger) {
         return () -> {
             while (!Thread.currentThread().isInterrupted()){
                 T t = queue.peek();
@@ -68,7 +68,7 @@ final class ManagedMessageLogger implements Managed {
         };
     }
 
-    private List<Runnable> createLogTasks(MessageRouter messageRouter, Logger logger) {
+    private static List<Runnable> createLogTasks(MessageRouter messageRouter, Logger logger) {
         ImmutableList.Builder<Runnable> builder = ImmutableList.builder();
         builder.add(createLogTask(queueFrom(messageRouter, Link.class), logger));
         builder.add(createLogTask(queueFrom(
