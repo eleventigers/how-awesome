@@ -3,13 +3,19 @@ subprojects {
         repositories {
             mavenCentral()
             maven {
-                url "https://oss.sonatype.org/content/repositories/snapshots"
+                url 'https://oss.sonatype.org/content/repositories/snapshots'
+            }
+            maven {
+                url 'https://dl.bintray.com/kotlin/kotlin-eap-1.1'
             }
         }
     }
 
     repositories {
         mavenCentral()
+        maven {
+            url 'https://dl.bintray.com/kotlin/kotlin-eap-1.1'
+        }
     }
 
     group = GROUP
@@ -37,7 +43,7 @@ task wrapper(type: Wrapper) {
 }
 
 ext {
-    kotlinVersion = '1.0.5-3'
+    kotlinVersion = '1.1.0-rc-91'
     okhttp3Version = '3.2.0'
     dropwizardVersion = '1.0.0-rc1'
 

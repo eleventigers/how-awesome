@@ -4,6 +4,6 @@ import java.io.InputStream
 
 open class BaseIntegrationTest {
     fun documentStream(documentResourcePath: String): InputStream {
-        return javaClass.classLoader.getResourceAsStream(documentResourcePath)
+        return BaseIntegrationTest::class.java.classLoader.getResourceAsStream(documentResourcePath)
     }
 }

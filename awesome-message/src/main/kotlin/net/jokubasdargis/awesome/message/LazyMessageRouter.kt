@@ -33,7 +33,7 @@ internal class LazyMessageRouter private constructor(
             return q
         } else {
             return object : MessageQueue<T> {
-                private val logger = LoggerFactory.getLogger(javaClass)
+                private val logger = LoggerFactory.getLogger(LazyMessageRouter::class.java)
 
                 override fun add(value: T): Boolean {
                     warn()
