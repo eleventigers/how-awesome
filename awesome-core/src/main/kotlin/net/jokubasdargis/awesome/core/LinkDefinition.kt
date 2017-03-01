@@ -34,7 +34,7 @@ sealed class LinkDefinition(val link: Link)  {
         }
 
         override fun toString(): String{
-            return "Title(value='$value')"
+            return "Title(value='$value', ${super.toString()})"
         }
     }
 
@@ -67,7 +67,7 @@ sealed class LinkDefinition(val link: Link)  {
         }
 
         override fun toString(): String{
-            return "Description(value='$value')"
+            return "Description(value='$value', ${super.toString()})"
         }
     }
 
@@ -110,7 +110,7 @@ sealed class LinkDefinition(val link: Link)  {
         }
 
         override fun toString(): String {
-            return "${link.raw} -> ${value.raw}"
+            return "Relationship(${link.raw} -> ${value.raw}, ${super.toString()})"
         }
     }
 
@@ -143,7 +143,7 @@ sealed class LinkDefinition(val link: Link)  {
         }
 
         override fun toString(): String{
-            return "StarsCount(value=$value)"
+            return "StarsCount(value=$value, ${super.toString()})"
         }
     }
 
@@ -176,7 +176,7 @@ sealed class LinkDefinition(val link: Link)  {
         }
 
         override fun toString(): String{
-            return "ForksCount(value=$value)"
+            return "ForksCount(value=$value, ${super.toString()})"
         }
     }
 
@@ -210,7 +210,7 @@ sealed class LinkDefinition(val link: Link)  {
         }
 
         override fun toString(): String{
-            return "LatestCommitDate(value=$value)"
+            return "LatestCommitDate(value=$value, ${super.toString()})"
         }
     }
 
@@ -234,7 +234,7 @@ sealed class LinkDefinition(val link: Link)  {
         }
 
         override fun toString(): String{
-            return "None()"
+            return "None(${super.toString()})"
         }
     }
 
@@ -253,5 +253,9 @@ sealed class LinkDefinition(val link: Link)  {
 
     override fun hashCode(): Int{
         return link.hashCode()
+    }
+
+    override fun toString(): String {
+        return "LinkDefinition(link=$link)"
     }
 }
