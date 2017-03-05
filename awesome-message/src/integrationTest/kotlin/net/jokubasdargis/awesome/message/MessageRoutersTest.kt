@@ -6,10 +6,15 @@ import net.jokubasdargis.awesome.core.LinkDefinition
 import org.junit.After
 import org.junit.Ignore
 import org.junit.Test
+import java.time.Instant
 import java.util.UUID
 
 @Ignore("depends on a running RabbitMQ broker")
 class MessageRoutersTest {
+
+    companion object {
+        private val TIMESTAMP = Instant.ofEpochSecond(1488755237)
+    }
 
     private val sut = MessageRouters.awesome()
 
@@ -33,20 +38,20 @@ class MessageRoutersTest {
         val link = createLink()
         val linkDefTitle = LinkDefinition.Title(link, "awesome")
 
-        linkQueue.add(link)
-        linkDefTitleQueue.add(linkDefTitle)
+        linkQueue.add(MessageParcel(link, TIMESTAMP))
+        linkDefTitleQueue.add(MessageParcel(linkDefTitle, TIMESTAMP))
 
         val peekedLink = linkQueue.peek()
         val peekedLinkDefTitle = linkDefTitleQueue.peek()
 
-        assertThat(peekedLink).isEqualTo(link)
-        assertThat(peekedLinkDefTitle).isEqualTo(linkDefTitle)
+        assertThat(peekedLink?.value).isEqualTo(link)
+        assertThat(peekedLinkDefTitle?.value).isEqualTo(linkDefTitle)
     }
 
     @Test fun routeAny() {
         val queue = sut.routeFor<Any>()
 
-        val added = queue.add(Any())
+        val added = queue.add(MessageParcel(Any(), TIMESTAMP))
 
         assertThat(added).isFalse()
     }

@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 
 import net.jokubasdargis.awesome.core.Link;
 import net.jokubasdargis.awesome.core.LinkDefinition;
+import net.jokubasdargis.awesome.core.LinkOccurrence;
+import net.jokubasdargis.awesome.message.MessageParcel;
 import net.jokubasdargis.awesome.message.MessageQueue;
 import net.jokubasdargis.awesome.message.MessageRouter;
 
@@ -59,9 +61,9 @@ final class ManagedMessageLogger implements Managed {
     private static <T> Runnable createLogTask(MessageQueue<T> queue, Logger logger) {
         return () -> {
             while (!Thread.currentThread().isInterrupted()){
-                T t = queue.peek();
-                if (t != null) {
-                    logger.info(t.toString());
+                MessageParcel<T> parcel = queue.peek();
+                if (parcel != null) {
+                    logger.info(parcel.toString());
                     queue.remove();
                 }
             }
@@ -70,7 +72,8 @@ final class ManagedMessageLogger implements Managed {
 
     private static List<Runnable> createLogTasks(MessageRouter messageRouter, Logger logger) {
         ImmutableList.Builder<Runnable> builder = ImmutableList.builder();
-        builder.add(createLogTask(queueFrom(messageRouter, Link.class), logger));
+        builder.add(createLogTask(queueFrom(
+                messageRouter, LinkOccurrence.class), logger));
         builder.add(createLogTask(queueFrom(
                 messageRouter, LinkDefinition.Title.class), logger));
         builder.add(createLogTask(queueFrom(

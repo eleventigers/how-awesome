@@ -6,7 +6,7 @@ import io.mola.galimatias.canonicalize.RFC3986Canonicalizer
 import io.mola.galimatias.canonicalize.StripPartCanonicalizer
 import java.net.URI
 
-sealed class Link private constructor(val raw: String) {
+sealed class Link constructor(val raw: String) {
 
     class Identified internal constructor(private val url: URL, raw: String) : Link(raw) {
 

@@ -4,6 +4,7 @@ import com.rabbitmq.client.Connection
 import com.rabbitmq.client.ConnectionFactory
 import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.core.LinkDefinition
+import net.jokubasdargis.awesome.core.LinkOccurrence
 import java.net.URI
 import kotlin.reflect.KClass
 
@@ -11,13 +12,14 @@ class MessageRouters private constructor() {
     companion object {
 
         private val EXCHANGE_AWESOME = "net.jokubasdargis.awesome"
-        private val KEY_LINK = "link"
-        private val KEY_LINK_RELATIONSHIP = "$KEY_LINK.relationship"
-        private val KEY_LINK_TITLE = "$KEY_LINK.title"
-        private val KEY_LINK_DESCRIPTION = "$KEY_LINK.desc"
-        private val KEY_LINK_STARS_COUNT = "$KEY_LINK.stars.count"
-        private val KEY_LINK_FORKS_COUNT = "$KEY_LINK.forks.count"
-        private val KEY_LINK_LATEST_COMMIT_DATE = "$KEY_LINK.commit.latest.date"
+        private val PREFIX_LINK = "link"
+        private val KEY_LINK_OCCURRENCE = "$PREFIX_LINK.occurrence"
+        private val KEY_LINK_RELATIONSHIP = "$PREFIX_LINK.relationship"
+        private val KEY_LINK_TITLE = "$PREFIX_LINK.title"
+        private val KEY_LINK_DESCRIPTION = "$PREFIX_LINK.desc"
+        private val KEY_LINK_STARS_COUNT = "$PREFIX_LINK.stars.count"
+        private val KEY_LINK_FORKS_COUNT = "$PREFIX_LINK.forks.count"
+        private val KEY_LINK_LATEST_COMMIT_DATE = "$PREFIX_LINK.commit.latest.date"
 
         private class CloseableConnectionMessageRouter (
                 private val router: MessageRouter,
@@ -43,9 +45,9 @@ class MessageRouters private constructor() {
                 factory.newConnection()
             }
 
-            val link = Pair(Link::class, {
-                RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK,
-                        ProtoMessageConverters.Companion.link())
+            val link = Pair(LinkOccurrence::class, {
+                RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK_OCCURRENCE,
+                        ProtoMessageConverters.Companion.linkOccurrence())
             })
             val linkDefRelationship = Pair(LinkDefinition.Relationship::class, {
                 RabbitMqMessageQueue.create(connection, EXCHANGE_AWESOME, KEY_LINK_RELATIONSHIP,

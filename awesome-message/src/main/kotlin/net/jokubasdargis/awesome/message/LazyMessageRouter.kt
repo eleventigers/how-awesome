@@ -35,7 +35,7 @@ internal class LazyMessageRouter private constructor(
             return object : MessageQueue<T> {
                 private val logger = LoggerFactory.getLogger(LazyMessageRouter::class.java)
 
-                override fun add(value: T): Boolean {
+                override fun add(value: MessageParcel<T>): Boolean {
                     warn()
                     return false
                 }
@@ -46,7 +46,7 @@ internal class LazyMessageRouter private constructor(
                         0
                     }
 
-                override fun peek(): T? {
+                override fun peek(): MessageParcel<T>? {
                     warn()
                     return null
                 }

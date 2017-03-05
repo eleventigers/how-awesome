@@ -21,7 +21,7 @@ class RabbitMqMessageQueue<T> private constructor(
         private val exchangeName: String,
         private val routingKey: String,
         private val converter: MessageConverter<T>,
-        private val innerQueue: BlockingQueue<Pair<Long, T>>) : MessageQueue<T> {
+        private val innerQueue: BlockingQueue<Pair<Long, MessageParcel<T>>>) : MessageQueue<T> {
 
     private val queueName = AtomicReference<String>()
     private val consumerLock = Semaphore(1)
@@ -62,7 +62,7 @@ class RabbitMqMessageQueue<T> private constructor(
         })
     }
 
-    override fun add(value: T): Boolean {
+    override fun add(value: MessageParcel<T>): Boolean {
         val stream = ByteArrayOutputStream()
         val converted = converter.toStream(value, stream)
         when (converted) {
@@ -85,7 +85,7 @@ class RabbitMqMessageQueue<T> private constructor(
         }
     }
 
-    override fun peek(): T? {
+    override fun peek(): MessageParcel<T>? {
         synchronized(innerQueue) {
             val parcel = innerQueue.peek()
             if (parcel != null) {
