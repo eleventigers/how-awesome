@@ -1,21 +1,18 @@
 package net.jokubasdargis.awesome.message
 
+
 import com.google.common.truth.Truth.assertThat
-import com.rabbitmq.client.ConnectionFactory
 import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.core.LinkOccurrence
-import org.junit.After
-import org.junit.Ignore
 import org.junit.Test
+import java.io.File
+import java.nio.file.Files
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicInteger
 
-@Ignore("depends on a running RabbitMQ broker")
-class RabbitMqMessageQueueTest {
+class FileMessageQueueTest {
 
     companion object {
-        private val EXCHANGE_NAME = "awesome"
-        private val ROUTING_KEY = "test"
         private val TIMESTAMP = Instant.ofEpochSecond(1488755237)
         private val COUNTER = AtomicInteger()
 
@@ -26,22 +23,36 @@ class RabbitMqMessageQueueTest {
         }
     }
 
-    private val conn = ConnectionFactory().newConnection()
-    private val sut = RabbitMqMessageQueue.create(
-            conn, EXCHANGE_NAME, ROUTING_KEY, ProtoMessageConverters.linkOccurrence())
+    private val tmpDir = Files.createTempDirectory(FileMessageQueueTest::class.simpleName)
+    private val linkOccurrencesFile = File(tmpDir.toFile(), "link_occurrences")
+    private val sut = FileMessageQueue.create(
+            linkOccurrencesFile, ProtoMessageConverters.linkOccurrence())
 
-    @After fun tearDown() {
-        sut.close()
-        conn.close()
+    @Test fun add() {
+        val linkOccurrence = createLinkOccurrence()
+        val added = sut.add(MessageParcel(linkOccurrence, TIMESTAMP))
+
+        assertThat(added).isTrue()
     }
 
     @Test fun addPeek() {
         val linkOccurrence = createLinkOccurrence()
-        val added = sut.add(MessageParcel(linkOccurrence, TIMESTAMP))
+
+        sut.add(MessageParcel(linkOccurrence, TIMESTAMP))
         val peeked = sut.peek()
 
-        assertThat(added).isTrue()
         assertThat(linkOccurrence).isEqualTo(peeked?.value)
+    }
+
+    @Test fun addRemove() {
+        val linkOccurrence = createLinkOccurrence()
+
+        sut.add(MessageParcel(linkOccurrence, TIMESTAMP))
+        sut.remove()
+        val peeked = sut.peek()
+
+        assertThat(peeked).isNull()
+        assertThat(sut.size).isEqualTo(0)
     }
 
     @Test fun multipleAddPeekRemove() {

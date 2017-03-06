@@ -74,7 +74,7 @@ class RabbitMqMessageQueue<T> private constructor(
                     consumerLock.acquire()
                     return true
                 } catch (e: IOException) {
-                    LOGGER.error("Failed to send $value: ${e.cause}")
+                    LOGGER.error("Failed to send $value: $e")
                     return false
                 }
             }

@@ -2,7 +2,6 @@ package net.jokubasdargis.awesome.message
 
 import com.rabbitmq.client.Connection
 import com.rabbitmq.client.ConnectionFactory
-import net.jokubasdargis.awesome.core.Link
 import net.jokubasdargis.awesome.core.LinkDefinition
 import net.jokubasdargis.awesome.core.LinkOccurrence
 import java.net.URI

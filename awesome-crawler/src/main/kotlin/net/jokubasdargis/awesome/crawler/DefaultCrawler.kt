@@ -27,20 +27,19 @@ internal class DefaultCrawler private constructor(
 
             override fun next(): CrawlStats {
                 val start = System.currentTimeMillis()
-                val crawlResult = crawl()
+                val result = crawl()
                 val duration = System.currentTimeMillis() - start
-                return CrawlStats(Duration.ofMillis(duration), crawlResult)
+                return CrawlStats(Duration.ofMillis(duration), result)
             }
 
-            private fun crawl(): CrawlStatus {
+            private fun crawl(): Result<Link> {
                 val link = linkFrontier.peek()
                 if (link !is Link.Identified) {
-                    return CrawlStatus.Failure(CrawlException("Link is not identified: $link"))
+                    return Result.Failure(CrawlException(link, "Link is not identified: $link"))
                 }
                 val result = linkFetcher(link)
                 if (result is Result.Success) {
-                    val markStream = MarkableInputStream(result.value.stream)
-                    try {
+                    MarkableInputStream(result.value.stream).use { markStream ->
                         val readLimit = if (result.value.contentLength != -1L)
                             result.value.contentLength.toInt() else Int.MAX_VALUE
                         markStream.allowMarksToExpire(false)
@@ -68,15 +67,13 @@ internal class DefaultCrawler private constructor(
                         } else {
                             LOGGER.info("Content previously seen at ${link.canonicalize()}")
                         }
-                    } finally {
-                        markStream.close()
                     }
-                    return CrawlStatus.Success()
+                    return Result.Success(link)
                 } else {
                     LOGGER.warn("Failed to fetch ${link.canonicalize()}, error: $result")
                     val cause = (result as? Result.Failure)
                             ?.error ?: Throwable("Unexpected link fetcher result")
-                    return CrawlStatus.Failure(CrawlException(cause))
+                    return Result.Failure(CrawlException(link, cause))
                 }
             }
         }

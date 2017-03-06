@@ -2,7 +2,6 @@ package net.jokubasdargis.awesome.aggregator.service;
 
 import com.google.common.collect.ImmutableList;
 
-import net.jokubasdargis.awesome.core.Link;
 import net.jokubasdargis.awesome.core.LinkDefinition;
 import net.jokubasdargis.awesome.core.LinkOccurrence;
 import net.jokubasdargis.awesome.message.MessageParcel;
@@ -22,6 +21,8 @@ import io.dropwizard.lifecycle.Managed;
 
 import static java.util.Objects.requireNonNull;
 
+import javax.annotation.Nullable;
+
 final class ManagedMessageLogger implements Managed {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedMessageLogger.class);
@@ -34,6 +35,9 @@ final class ManagedMessageLogger implements Managed {
     private final MessageRouter messageRouter;
     private final ScheduledExecutorService executorService;
 
+    @Nullable
+    private ScheduledFuture<?> scheduledTask;
+
     private ManagedMessageLogger(MessageRouter messageRouter,
                                  ScheduledExecutorService executorService) {
         this.messageRouter = requireNonNull(messageRouter);
@@ -42,7 +46,7 @@ final class ManagedMessageLogger implements Managed {
 
     @Override
     public void start() throws Exception {
-        executorService.scheduleAtFixedRate(() -> {
+        scheduledTask = executorService.scheduleAtFixedRate(() -> {
             createLogTasks(messageRouter, LOGGER)
                     .stream()
                     .map((Function<Runnable, ScheduledFuture<?>>) runnable ->
@@ -55,7 +59,10 @@ final class ManagedMessageLogger implements Managed {
 
     @Override
     public void stop() throws Exception {
-
+        if (scheduledTask != null) {
+            scheduledTask.cancel(true);
+            scheduledTask = null;
+        }
     }
 
     private static <T> Runnable createLogTask(MessageQueue<T> queue, Logger logger) {
