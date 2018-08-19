@@ -43,7 +43,7 @@ task wrapper(type: Wrapper) {
 }
 
 ext {
-    kotlinVersion = '1.1.0-rc-91'
+    kotlinVersion = '1.1.4'
     okhttp3Version = '3.2.0'
     dropwizardVersion = '1.0.0-rc1'
 
@@ -54,7 +54,7 @@ ext {
 
     jsoup = 'org.jsoup:jsoup:1.8.3'
     galimatias = 'io.mola.galimatias:galimatias:0.2.1'
-    guava = 'com.google.guava:guava:19.0'
+    guava = 'com.google.guava:guava:21.0'
     okhttp3 = "com.squareup.okhttp3:okhttp:$okhttp3Version"
     okhttp3Logging = "com.squareup.okhttp3:logging-interceptor:$okhttp3Version"
     logback = 'ch.qos.logback:logback-classic:1.1.3'

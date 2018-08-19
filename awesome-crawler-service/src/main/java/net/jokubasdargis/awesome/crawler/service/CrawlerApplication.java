@@ -1,5 +1,7 @@
 package net.jokubasdargis.awesome.crawler.service;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import net.jokubasdargis.awesome.core.Link;
 import net.jokubasdargis.awesome.core.Result;
 import net.jokubasdargis.awesome.crawler.Crawlers;
@@ -7,9 +9,6 @@ import net.jokubasdargis.awesome.crawler.LinkFrontier;
 import net.jokubasdargis.awesome.crawler.LinkResponse;
 import net.jokubasdargis.awesome.crawler.OkHttpLinkFetcher;
 import net.jokubasdargis.awesome.message.MessageRouter;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;

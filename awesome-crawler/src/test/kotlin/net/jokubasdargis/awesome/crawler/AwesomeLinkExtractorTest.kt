@@ -33,7 +33,7 @@ class AwesomeLinkExtractorTest {
     @Test fun identifiedLinks() {
         val links = listOf(LINK_A, LINK_B, LINK_C)
         val stream = Mockito.mock(InputStream::class.java)
-        val sut = AwesomeLinkExtractor.create { stream -> { links } }
+        val sut = AwesomeLinkExtractor.create { _ -> { links } }
 
         val result = sut(stream, LINK_A)
 

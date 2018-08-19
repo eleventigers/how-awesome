@@ -29,7 +29,7 @@ class AwesomeContentProcessorTest {
                 (Iterable<DocumentDefinition>) -> Unit {
             var called: Iterable<DocumentDefinition>? = null
             //TODO(eleventigers, 18/03/16): figure out why spy fails and I need to use this hack
-            override fun invoke(descriptions: Iterable<DocumentDefinition>): Unit {
+            override fun invoke(descriptions: Iterable<DocumentDefinition>) {
                 called = descriptions
             }
         }
@@ -51,7 +51,7 @@ class AwesomeContentProcessorTest {
         ))
         val documentDefinitions: Iterable<DocumentDefinition> = listOf(links, linkDefinitions)
         val stream = mock(InputStream::class.java)
-        val sut = AwesomeContentProcessor.create { stream -> { link -> documentDefinitions } }
+        val sut = AwesomeContentProcessor.create { _ -> { _ -> documentDefinitions } }
         val result = sut(stream, LINK_A)
 
         val expectedLinks = DocumentDefinition.Links(LINK_A, links.identified().toSet())

@@ -59,8 +59,6 @@ sealed class Link constructor(val raw: String) {
             return CANONICALIZER.canonicalize(url).toString()
         }
 
-
-
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -111,13 +109,14 @@ sealed class Link constructor(val raw: String) {
                 StripPartCanonicalizer(StripPartCanonicalizer.Part.FRAGMENT),
                 RFC3986Canonicalizer())
 
+        @JvmStatic
         fun from(string: String, parent: Link? = null): Link {
-            try {
+            return try {
                 val url = URL.fromJavaURI(resolve(URI(string), parent))
-                return Link.Identified(url, string)
+                Link.Identified(url, string)
             } catch (e: Exception) {
                 //TODO(eleventigers, 16/07/2016): log parse failures
-                return Link.Invalid(string)
+                Link.Invalid(string)
             }
         }
 

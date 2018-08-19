@@ -35,24 +35,23 @@ class AwesomeContentProcessorIntegrationTest(val documentResourcePath: String,
 
     @Test fun process() {
         val processor = AwesomeContentProcessor.create()
-        val stream = documentStream(documentResourcePath)
-        val link = Link.from(documentRootUrl) as Link.Identified
-        val definitions = processor(stream, link)
+        documentStream(documentResourcePath).use {
+            val link = Link.from(documentRootUrl) as Link.Identified
+            val definitions = processor(it, link)
 
-        assertThat(definitions).hasSize(2)
-        definitions.forEach {
-            when (it) {
-                is DocumentDefinition.Links -> assertThat(it()).hasSize(numberOfLinks)
-                is DocumentDefinition.LinkDefinitions -> {
-                    assertThat(it()).hasSize(numberOfLinkDefs)
-                    it().filter { it is LinkDefinition.Relationship }
-                            .forEach {
-                                assertThat(link.equalHierarchy(it.link))
-                            }
+            assertThat(definitions).hasSize(2)
+            definitions.forEach {
+                when (it) {
+                    is DocumentDefinition.Links -> assertThat(it()).hasSize(numberOfLinks)
+                    is DocumentDefinition.LinkDefinitions -> {
+                        assertThat(it()).hasSize(numberOfLinkDefs)
+                        it().filter { it is LinkDefinition.Relationship }
+                                .forEach {
+                                    assertThat(link.equalHierarchy(it.link))
+                                }
+                    }
                 }
             }
         }
-
-        stream.close()
     }
 }

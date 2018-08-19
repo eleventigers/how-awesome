@@ -24,6 +24,7 @@ dependencies {
     compile project(':awesome-message')
 
     compile rootProject.ext.dropwizardCore
+    compile rootProject.ext.guava
     provided rootProject.ext.capsuleMain
     capsule rootProject.ext.capsuleMain
 

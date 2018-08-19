@@ -1,5 +1,6 @@
 package net.jokubasdargis.awesome.aggregator.service;
 
+import net.jokubasdargis.awesome.core.Link;
 import net.jokubasdargis.awesome.message.MessageRouter;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,6 +12,9 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 public final class AggregatorApplication extends Application<AggregatorConfiguration> {
+
+    private static final Link AWESOME_ROOT = Link.from(
+            "https://github.com/sindresorhus/awesome", null);
 
     public static void main(String... args) throws Exception {
         new AggregatorApplication().run(args);
@@ -32,7 +36,7 @@ public final class AggregatorApplication extends Application<AggregatorConfigura
         ScheduledExecutorService executor = environment.lifecycle()
                 .scheduledExecutorService("Logger %d").threads(8).build();
         ManagedMessageLogger managedMessageLogger = ManagedMessageLogger
-                .create(messageRouter, executor);
+                .create(messageRouter, new LinkRelationshipStore(AWESOME_ROOT), executor);
         environment.lifecycle().manage(managedMessageLogger);
     }
 }

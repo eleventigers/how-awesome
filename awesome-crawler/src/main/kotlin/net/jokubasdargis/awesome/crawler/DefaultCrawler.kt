@@ -26,10 +26,12 @@ internal class DefaultCrawler private constructor(
             }
 
             override fun next(): CrawlStats {
-                val start = System.currentTimeMillis()
+                val start = System.nanoTime()
                 val result = crawl()
-                val duration = System.currentTimeMillis() - start
-                return CrawlStats(Duration.ofMillis(duration), result)
+                val duration = System.nanoTime() - start
+                val crawlStat = CrawlStats(Duration.ofNanos(duration), result)
+                LOGGER.info("Crawl completed with {}", crawlStat)
+                return crawlStat
             }
 
             private fun crawl(): Result<Link> {
