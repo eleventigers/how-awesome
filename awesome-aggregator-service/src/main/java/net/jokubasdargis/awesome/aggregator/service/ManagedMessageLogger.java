@@ -7,13 +7,17 @@ import com.google.common.graph.Graph;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import net.jokubasdargis.awesome.core.Link;
@@ -29,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
+import guru.nidi.graphviz.engine.Format;
 import io.dropwizard.lifecycle.Managed;
 
 final class ManagedMessageLogger implements Managed {
@@ -46,8 +51,7 @@ final class ManagedMessageLogger implements Managed {
     private final LinkRelationshipStore linkRelationshipStore;
     private final ScheduledExecutorService executorService;
 
-    @Nullable
-    private ScheduledFuture<?> scheduledTask;
+    private final Set<ScheduledFuture<?>> scheduledTasks = new LinkedHashSet<>();
 
     private ManagedMessageLogger(
             MessageRouter messageRouter,
@@ -61,22 +65,30 @@ final class ManagedMessageLogger implements Managed {
     @Override
     public void start() throws Exception {
         List<Runnable> tasks = createTasks(messageRouter, linkRelationshipStore, LOGGER);
-        scheduledTask = executorService.scheduleAtFixedRate(() -> {
+
+        scheduledTasks.add(executorService.scheduleAtFixedRate(() -> {
             tasks.stream()
                     .map((Function<Runnable, ScheduledFuture<?>>) runnable ->
                             executorService.schedule(runnable, 0, TimeUnit.SECONDS))
                     .forEach(scheduledFuture ->
                             executorService.schedule(
                                     () -> scheduledFuture.cancel(true), 25, TimeUnit.SECONDS));
-        }, 0, 30, TimeUnit.SECONDS);
+        }, 0, 30, TimeUnit.SECONDS));
+
+        scheduledTasks.add(executorService.scheduleWithFixedDelay(() -> {
+            try {
+                List<File> graphFiles = linkRelationshipStore.dumpGraphToFile(Format.XDOT);
+                LOGGER.info("Dumped graph to: {}", graphFiles);
+            } catch (Exception e) {
+                LOGGER.error("Failed to dump graph", e);
+            }
+        }, 15, 30, TimeUnit.SECONDS));
     }
 
     @Override
     public void stop() throws Exception {
-        if (scheduledTask != null) {
-            scheduledTask.cancel(true);
-            scheduledTask = null;
-        }
+        scheduledTasks.forEach(scheduledFuture -> scheduledFuture.cancel(true));
+        scheduledTasks.clear();
     }
 
     private static <T> Runnable createLogTask(MessageQueue<T> queue, Logger logger) {
@@ -136,15 +148,6 @@ final class ManagedMessageLogger implements Managed {
             }
         });
         return builder.build();
-    }
-
-    private static Set<Link> getSuccessors(Graph<Link> graph, Link node) {
-        Set<Link> successors = new HashSet<>();
-        for (Link successor : graph.successors(node)) {
-            successors.addAll(graph.successors(successor));
-        }
-        successors.remove(node);
-        return successors;
     }
 
     private static List<Runnable> createTasks(

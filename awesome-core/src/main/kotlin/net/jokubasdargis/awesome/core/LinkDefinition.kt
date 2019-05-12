@@ -110,7 +110,7 @@ sealed class LinkDefinition(val link: Link)  {
         }
 
         override fun toString(): String {
-            return "Relationship(${link.raw} -> ${value.raw}, ${super.toString()})"
+            return "Relationship($link -> $value, ${super.toString()})"
         }
     }
 

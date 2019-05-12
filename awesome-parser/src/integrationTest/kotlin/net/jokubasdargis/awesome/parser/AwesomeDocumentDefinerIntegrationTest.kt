@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import net.jokubasdargis.awesome.core.DocumentDefinition
 import net.jokubasdargis.awesome.core.Host
 import net.jokubasdargis.awesome.core.Link
+import net.jokubasdargis.awesome.core.LinkDefinition
 import org.junit.Test
 
 class AwesomeDocumentDefinerIntegrationTest : BaseIntegrationTest() {
@@ -87,7 +88,7 @@ class AwesomeDocumentDefinerIntegrationTest : BaseIntegrationTest() {
                     assertThat(it()).containsExactlyElementsIn(RXJAVA_LINKS)
                 }
                 is DocumentDefinition.LinkDefinitions -> {
-                    assertThat(it()).hasSize(203)
+                    assertThat(it()).hasSize(158)
                 }
             }
         }
@@ -103,14 +104,23 @@ class AwesomeDocumentDefinerIntegrationTest : BaseIntegrationTest() {
         definitions.forEach {
             when (it) {
                 is DocumentDefinition.Links -> {
-                    assertThat(it()).hasSize(318)
-                    assertThat(it.ofHost(GITHUB)).hasSize(311)
-                    assertThat(it.notOfHost(GITHUB)).hasSize(7)
-                    assertThat(it.identified()).hasSize(318)
+                    assertThat(it()).hasSize(472)
+                    assertThat(it.ofHost(GITHUB)).hasSize(464)
+                    assertThat(it.notOfHost(GITHUB)).hasSize(8)
+                    assertThat(it.identified()).hasSize(472)
                     assertThat(it.invalid()).hasSize(0)
                 }
                 is DocumentDefinition.LinkDefinitions -> {
-                    assertThat(it()).hasSize(1299)
+                    val linkDefinitions = it()
+                    assertThat(linkDefinitions).hasSize(1425)
+                    val relationships = linkDefinitions
+                            .filter {
+                                it is LinkDefinition.Relationship
+                            }
+                            .map {
+                                it as LinkDefinition.Relationship
+                            }
+                    assertThat(relationships).hasSize(482)
                 }
             }
         }
@@ -133,7 +143,30 @@ class AwesomeDocumentDefinerIntegrationTest : BaseIntegrationTest() {
                     assertThat(it.invalid()).hasSize(0)
                 }
                 is DocumentDefinition.LinkDefinitions -> {
-                    assertThat(it()).hasSize(4250)
+                    assertThat(it()).hasSize(2949)
+                }
+            }
+        }
+    }
+
+    @Test fun defineDropwizard() {
+        val document = document("awesome-dropwizard.html")
+        val definer = AwesomeDocumentDefiner.create(document)
+        val definitions = definer(Link.from("https://github.com/stve/awesome-dropwizard#readme"))
+
+        assertThat(definitions).hasSize(2)
+
+        definitions.forEach {
+            when (it) {
+                is DocumentDefinition.Links -> {
+                    assertThat(it()).hasSize(96)
+                    assertThat(it.ofHost(GITHUB)).hasSize(69)
+                    assertThat(it.notOfHost(GITHUB)).hasSize(27)
+                    assertThat(it.identified()).hasSize(96)
+                    assertThat(it.invalid()).hasSize(0)
+                }
+                is DocumentDefinition.LinkDefinitions -> {
+                    assertThat(it()).hasSize(282)
                 }
             }
         }
@@ -156,7 +189,7 @@ class AwesomeDocumentDefinerIntegrationTest : BaseIntegrationTest() {
                     assertThat(it.notOfHost(GITHUB)).hasSize(5)
                 }
                 is DocumentDefinition.LinkDefinitions -> {
-                    assertThat(it()).hasSize(15)
+                    assertThat(it()).hasSize(12)
                 }
             }
         }

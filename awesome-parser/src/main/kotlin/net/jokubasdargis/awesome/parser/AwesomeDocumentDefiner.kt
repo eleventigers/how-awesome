@@ -6,7 +6,7 @@ import net.jokubasdargis.awesome.core.LinkDefinition
 import net.jokubasdargis.awesome.core.Relationship
 import net.jokubasdargis.awesome.util.Functions
 import org.jsoup.nodes.Document
-import java.util.ArrayList
+import java.util.*
 
 internal class AwesomeDocumentDefiner private constructor(
         private val readmeLinks: (Link) -> List<Link>,
@@ -27,9 +27,17 @@ internal class AwesomeDocumentDefiner private constructor(
                     acc
                 }
 
-        val relationships = linkRelationshipFinder(baseLink)
-                .map { LinkDefinition.Relationship(it.from(), it.to()) }
-                .plus(links.map { LinkDefinition.Relationship(baseLink, it) })
+        val relationships = links
+//                .filter {
+//                    if (it is Link.Identified && baseLink is Link.Identified) {
+//                        it.canonicalize() == baseLink.canonicalize()
+//                    } else {
+//                        false
+//                    }
+//                }
+                .map { LinkDefinition.Relationship(baseLink, it) }
+                .plus(linkRelationshipFinder(baseLink)
+                        .map { LinkDefinition.Relationship(it.from(), it.to()) })
 
         val linkDefinitions = documentLinkDefinitions
                 .plus(inlineLinkDefinitions)

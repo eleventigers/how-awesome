@@ -8,9 +8,9 @@ import org.jsoup.nodes.Element
 internal class DefaultLinkRelationshipFinder private constructor(
         private val linkElements: () -> List<Element>) : (Link) -> List<Relationship<Link>> {
 
-    override fun invoke(value: Link): List<Relationship<Link>> {
+    override fun invoke(baseLink: Link): List<Relationship<Link>> {
         val pairs = linkElements()
-                .map { Pair(it, Link.from(Html.href(it), value)) }
+                .map { Pair(it, Link.from(Html.href(it), baseLink)) }
                 .map {
                     val that = it
                     val el = that.first
@@ -27,6 +27,14 @@ internal class DefaultLinkRelationshipFinder private constructor(
                     g.value.fold(g.value.first(), { a, p ->
                         if (p.second.size < a.second.size ) a else p
                     })
+                }
+                .filter {
+                    val from = it.first
+                    if (from is Link.Identified && baseLink is Link.Identified) {
+                        from.canonicalize() == baseLink.canonicalize()
+                    } else {
+                        false
+                    }
                 }
 
         val relationships = if (pairs.isEmpty()) emptyList() else pairs.map { p ->

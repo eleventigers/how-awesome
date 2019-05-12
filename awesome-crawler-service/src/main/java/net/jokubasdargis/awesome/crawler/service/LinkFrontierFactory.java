@@ -28,7 +28,8 @@ final class LinkFrontierFactory {
     }
 
     LinkFrontier build(Environment environment) {
-        LinkFrontier linkFrontier = LinkFrontiers.newFileQueueLinkFrontier(file);
+//        LinkFrontier linkFrontier = LinkFrontiers.newFileQueueLinkFrontier(file);
+        LinkFrontier linkFrontier = LinkFrontiers.newInMemoryQueueLinkFrontier();
         environment.lifecycle().manage(new Managed() {
             @Override
             public void start() throws Exception {
